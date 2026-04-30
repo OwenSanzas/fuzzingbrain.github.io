@@ -171,7 +171,38 @@
                             库的每个 API 都有自己的使用协议:什么时候 init、什么时候 destroy、参数允许哪些范围、返回值需不需要检查、哪些调用必须配对。LLM 生成的 harness 经常违反这些协议,因为它无法从单个函数签名看出整个状态机。具体的 8 条 P2 子检查在下文 P1.1–P2.8 清单里列全。
                         </p>
                         <p>
-                            <strong>P2 违反 ⇒ 这个 crash 是 API 误用,不是库漏洞。</strong>但 P2 还有一种比"上报 FP"更隐蔽的失败模式:harness 编译过、跑起来、coverage 还在涨,可是某个早期的配置调用已经把后面那条目标路径悄悄清空了。fuzzer 看起来在工作,实际上目标的内存安全代码一帧都没走到。你不是没找到 bug,你是根本没在测。这种 case 在 sanitizer 层面没有任何 crash 信号,却让整个 fuzz 周期产物为零,比 FP 还白干。
+                            举一个我们这次审计里碰到的真例子。OpenSSL 的 <code>provider</code> harness 写成这样:
+                        </p>
+<pre><code class="language-c">EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+
+OSSL_PARAM params[2];
+params[0] = OSSL_PARAM_construct_uint(
+    OSSL_CIPHER_PARAM_NUM, &num);     // num 来自 fuzz input
+params[1] = OSSL_PARAM_construct_end();
+
+EVP_CIPHER_CTX_set_params(ctx, params);   // ← 哪错了
+EVP_EncryptInit_ex2(ctx, EVP_des_ede3_ofb(), key, iv, NULL);
+EVP_EncryptUpdate(ctx, out, &out_len, fuzz_data, fuzz_len);
+</code></pre>
+                        <p>
+                            <strong>哪错了:</strong><code>set_params</code> 走在 <code>EncryptInit_ex2</code> 之前。
+                        </p>
+                        <p>
+                            <strong>为什么错:</strong><code>EVP_CIPHER_CTX_new</code> 只是分配了一个空 context —— 还没绑 cipher、还没 keystream、什么都没有。这时候调 <code>set_params</code>,目标参数 <code>OSSL_CIPHER_PARAM_NUM</code> 在 OpenSSL 内部需要根据当前 cipher 类型转发到对应 provider 的实现。<strong>cipher 还是 NULL,转发不出去,函数静悄悄返回 0</strong>,fuzz 输入的 <code>num</code> 完全被丢掉。下一行 <code>EncryptInit_ex2</code> 才把 context 真正初始化,但那时候已经在用 OpenSSL 的默认 <code>num=0</code>,fuzz 永远控制不到这个字段。
+                        </p>
+                        <p>
+                            结果:fuzz bytes 表面上在驱动 <code>ctx->num</code>,实际上每一轮调用都是默认值。整条 cipher 路径上的内存安全代码 sanitizer 永远碰不到。这是典型的 <strong>P2.1(Init sequence)</strong> 违规 —— 必需的 init 前置没有按顺序到位。修法很简单,把两行调换顺序:
+                        </p>
+<pre><code class="language-c">EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+EVP_EncryptInit_ex2(ctx, EVP_des_ede3_ofb(), key, iv, NULL);  // 先 init
+EVP_CIPHER_CTX_set_params(ctx, params);                       // 再 set_params
+EVP_EncryptUpdate(ctx, out, &out_len, fuzz_data, fuzz_len);
+</code></pre>
+                        <p>
+                            修完之后 fuzzer 的 edge coverage 立刻多了 <strong>+51.4%</strong>,不到一分钟就触发了真正的库 bug。那是哪个 bug,留到本文最后讲。
+                        </p>
+                        <p>
+                            <strong>P2 违反 ⇒ 这个 crash 是 API 误用,不是库漏洞。</strong>但 P2 还有一种比"上报 FP"更隐蔽的失败模式 —— 就是上面这种,harness 编译过、跑起来、coverage 还在涨,可是某个早期的配置调用已经把后面那条目标路径悄悄清空了。fuzzer 看起来在工作,实际上目标的内存安全代码一帧都没走到。你不是没找到 bug,你是根本没在测。这种 case 在 sanitizer 层面没有任何 crash 信号,却让整个 fuzz 周期产物为零,比 FP 还白干。
                         </p>
 
                         <h3>P3 — Security Boundary Respect:鼓励走公开 API</h3>
