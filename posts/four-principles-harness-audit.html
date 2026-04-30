@@ -123,31 +123,31 @@
 
                     <!-- Four Principles -->
                     <section>
-                        <h2>四原则:在源码层定义"正确的 harness"</h2>
+                        <h2>The Four Principles: a source-level definition of a "correct" harness</h2>
                         <p>
-                            一个 harness 要被接受,必须同时通过四条<strong>源码可检查</strong>的条件 —— 我们称之为四原则(Four Principles, P1–P4)。每条原则对应 LLM(或人)写 harness 时最常见的一类失败模式。
+                            To be accepted, a harness must pass four <strong>source-level checks</strong> at the same time. We call them the Four Principles (P1–P4). Each one targets one of the most common failure modes when an LLM (or a human) writes a harness.
                         </p>
 
                         <div class="results-stats" style="margin: 2rem 0;">
                             <div class="result-stat">
                                 <div class="stat-icon" style="font-size: 2rem;">P1</div>
                                 <div class="stat-value">Logic Correctness</div>
-                                <div class="stat-label">harness 自己代码无 bug</div>
+                                <div class="stat-label">No bugs in the harness code itself</div>
                             </div>
                             <div class="result-stat">
                                 <div class="stat-icon" style="font-size: 2rem;">P2</div>
                                 <div class="stat-value">API Protocol Compliance</div>
-                                <div class="stat-label">调用顺序 / 生命周期 / 参数合法</div>
+                                <div class="stat-label">Call order, object lifetimes, valid parameters</div>
                             </div>
                             <div class="result-stat">
                                 <div class="stat-icon" style="font-size: 2rem;">P3</div>
                                 <div class="stat-value">Security Boundary Respect</div>
-                                <div class="stat-label">鼓励走公开 API,可从公开侧复现</div>
+                                <div class="stat-label">Public APIs preferred · reproducible from the public side</div>
                             </div>
                             <div class="result-stat">
                                 <div class="stat-icon" style="font-size: 2rem;">P4</div>
                                 <div class="stat-value">Entry Point Adequacy</div>
-                                <div class="stat-label">目标在真实攻击面上</div>
+                                <div class="stat-label">Target sits on a real attack surface</div>
                             </div>
                         </div>
 
