@@ -314,7 +314,7 @@
                             What about the 3 that <strong>did</strong> come back FP after filing? Those slipped past the source-level checks because the failure mode is not source-level. It is <strong>a mismatch between the library's threat model and our reading of it</strong>. The canonical example is V8's <code>uaf-v8-deserializer-unresolved-external-reference</code>. The entry is the public <code>Isolate::New(deserialize_params)</code>, P3 passed (genuinely public API), P4 passed (genuinely on the attack surface, reachable to unsafe ops), and the bug is technically a UAF. But V8's own <a href="https://chromium.googlesource.com/v8/v8/+/HEAD/docs/security/triaging.md#relying-on-broken-snapshots-to-craft-vulnerabilities">security triaging policy</a> explicitly excludes attacker-controlled snapshot blobs from the V8 threat model. The crash is real, the threat model says "out of scope", and that is the FP.
                         </p>
                         <p>
-                            "Technically real but threat-model-invalid" is the one failure mode the four principles cannot catch. It lives at <strong>the cross-product threat-contract layer</strong> rather than the source layer. That is exactly what the <a href="how-we-verify-fuzzer-crashes.html">next post's</a> Security Proxy is built for. Encode each library's threat model explicitly, run one more gate before filing, push the 3-FP number toward zero in future batches.
+                            "Technically real but threat-model-invalid" is the one failure mode the four principles cannot catch. It lives at <strong>the cross-product threat-contract layer</strong> rather than the source layer. That is exactly what the <a href="how-we-verify-fuzzer-crashes.html">next post's</a> Security Proxies are built for. Encode each library's threat model explicitly, run one more gate before filing, push the 3-FP number toward zero in future batches.
                         </p>
                     </section>
 
@@ -342,12 +342,12 @@
                     <section class="future-section">
                         <h2>Next: After the Crash</h2>
                         <p>
-                            Everything above is "filter errors at the harness stage". But even a P1-through-P4-clean harness produces a flood of crashes when fuzzed for real, tens of thousands per night. The next post covers the verify pipeline. The four principles applied <em>once more</em> to the specific crash trace, two-step independent reproduction, and a Security Proxy that aligns the report with the maintainer's threat model. That is the gate that pushes the live filing FP rate toward zero.
+                            Everything above is "filter errors at the harness stage". But even a P1-through-P4-clean harness produces a flood of crashes when fuzzed for real, tens of thousands per night. The next post covers the verify pipeline. The four principles applied <em>once more</em> to the specific crash trace, two-step independent reproduction, and Security Proxies that align the report with the maintainer's threat model. That is the gate that pushes the live filing FP rate toward zero.
                         </p>
                         <div class="next-steps">
                             <div class="next-step">
                                 <h4>Blog 3 — After the Crash</h4>
-                                <p>Four principles × two-step reproduction × Security Proxy. Picking the few worth filing out of the 24,000 crashes a fuzz batch produces overnight.</p>
+                                <p>Four principles × two-step reproduction × Security Proxies. Picking the few worth filing out of the 24,000 crashes a fuzz batch produces overnight.</p>
                             </div>
                             <div class="next-step">
                                 <h4>Blog 1 — Where the Four Principles Came From</h4>

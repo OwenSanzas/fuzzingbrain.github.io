@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>How We Verify Fuzzer Crashes: Four Principles, Two Reproductions, and a Security Proxy - FuzzingBrain</title>
+    <title>How We Verify Fuzzer Crashes: Four Principles, Two Reproductions, and Security Proxies - FuzzingBrain</title>
     <link rel="stylesheet" href="../styles.css">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
@@ -45,8 +45,8 @@
                         <span class="post-category">Verification</span>
                         <span class="post-readtime">12 min read</span>
                     </div>
-                    <h1 class="post-title-main">How We Verify Fuzzer Crashes: Four Principles, Two Reproductions, and a Security Proxy</h1>
-                    <p class="post-subtitle">A fuzzer can produce 24,000 crashes overnight and almost none of them deserve to be filed. We hold every candidate behind three gates. A four-principles re-audit on the crash path, two independent reproductions, and a per-library Security Proxy aligned with the maintainer's threat model. Together they keep our false-positive rate under 5% and keep every report we send genuinely useful to the maintainer.</p>
+                    <h1 class="post-title-main">How We Verify Fuzzer Crashes: Four Principles, Two Reproductions, and Security Proxies</h1>
+                    <p class="post-subtitle">A fuzzer can produce 24,000 crashes overnight and almost none of them deserve to be filed. We hold every candidate behind three gates. A four-principles re-audit on the crash path, two independent reproductions, and per-library Security Proxies aligned with the maintainer's threat model. Together they keep our false-positive rate under 5% and keep every report we send genuinely useful to the maintainer.</p>
                 </div>
             </div>
 
@@ -71,7 +71,7 @@
                                 </div>
                                 <div class="result-stat">
                                     <div class="stat-icon">Proxies</div>
-                                    <div class="stat-value">Security Proxy</div>
+                                    <div class="stat-value">Security Proxies</div>
                                     <div class="stat-label">every rule cites a DOC</div>
                                 </div>
                                 <div class="result-stat">
@@ -93,7 +93,7 @@
                             Get this step wrong and you become a wholesale supplier of automated report noise. So even though the LG plus reverse four-principles work from <a href="logic-groups-and-reverse-four-principles.html">Part 2</a> already filters most errors at generation time, <strong>every crash a fuzzer produces still has to be verified</strong>. Verification is the last gate before upstream.
                         </p>
                         <p>
-                            Our verification has three layers, ordered from cheap to expensive. The first is a four-principles re-audit on the specific crash path; reading source costs almost nothing, and any P-violation drops the crash on the spot. The second is two independent reproductions, which catches crashes that only occur inside the harness. The third is a Security Proxy match against the maintainer's threat model. Cognitive cost is highest here, but missing this layer is expensive when the maintainer fires back.
+                            Our verification has three layers, ordered from cheap to expensive. The first is a four-principles re-audit on the specific crash path; reading source costs almost nothing, and any P-violation drops the crash on the spot. The second is two independent reproductions, which catches crashes that only occur inside the harness. The third is Security Proxies matched against the maintainer's threat model. Cognitive cost is highest here, but missing this layer is expensive when the maintainer fires back.
                         </p>
                     </section>
 
@@ -161,9 +161,9 @@
                         </p>
                     </section>
 
-                    <!-- Step 3 - Security Proxy -->
+                    <!-- Step 3 - Security Proxies -->
                     <section>
-                        <h2>Gate Three. The Security Proxy</h2>
+                        <h2>Gate Three. The Security Proxies</h2>
                         <p>
                             A crash that survives the first two gates is technically real. The harness is clean, replay is stable, the production path also crashes. <strong>That still does not make it a vulnerability.</strong> Every library has its own security contract. Under that contract, some scary-looking crashes are simply "things the caller is supposed to defend against," and filing them gets the issue closed.
                         </p>
@@ -428,7 +428,7 @@
                         <ul>
                             <li><a href="four-principles-harness-audit.html"><strong>Part 1</strong></a>. The four principles as an <em>audit</em> tool. Applied to existing OSS-Fuzz harnesses, the audit prevented 14 FPs from ever reaching upstream, produced 53 fix PRs, and surfaced an OpenSSL bug that had been latent for 25 years.</li>
                             <li><a href="logic-groups-and-reverse-four-principles.html"><strong>Part 2</strong></a>. The four principles as a <em>generation</em> tool, applied in reverse (P4 first, P1 last) with Logic Group decomposition. In two weeks we deployed 472 harnesses across Chromium and its dependencies, filed 30 reports upstream (16 acked so far, 9 confirmed plus 7 fixed), and dropped 52 candidates at our own audit stage.</li>
-                            <li><strong>This post</strong>. The four principles as a <em>verification</em> tool, on the specific crash path, combined with two independent reproductions and a per-library Security Proxy. The result is that every issue we file is genuinely useful to the maintainer.</li>
+                            <li><strong>This post</strong>. The four principles as a <em>verification</em> tool, on the specific crash path, combined with two independent reproductions and per-library Security Proxies. The result is that every issue we file is genuinely useful to the maintainer.</li>
                         </ul>
                         <p>
                             That a single rule set works in audit, generation, and verification suggests we picked the right level of abstraction. Source-level correctness definitions hold up, while post-hoc filtering on fuzz output does not. That is the headline of this series. <strong>Harness quality is the bottleneck for fuzz effectiveness, and the way to fix it is to internalize source-level checks at generation time rather than rely on verify-time triage to save the day.</strong>
@@ -439,7 +439,7 @@
                     <section class="future-section">
                         <h2>Open to a Conversation</h2>
                         <p>
-                            If you build LLM-driven fuzz harness generators, if you've been on the receiving end of low-quality automated reports on OSS-Fuzz, or if any of the four principles, Logic Groups, or Security Proxy work interests you, we'd be glad to talk.
+                            If you build LLM-driven fuzz harness generators, if you've been on the receiving end of low-quality automated reports on OSS-Fuzz, or if any of the four principles, Logic Groups, or Security Proxies work interests you, we'd be glad to talk.
                         </p>
                         <div class="next-steps">
                             <div class="next-step">
