@@ -90,16 +90,28 @@
                             <strong>"I want an LLM to generate fuzz harnesses for me"</strong> — this goal has been getting heavy attention from both academia and industry over the past couple of years. But look one layer deeper and it rests on a premise almost everyone skips over: <em>what makes a harness "good"?</em> Without that definition, the only way to score what an LLM produces is "does it build" and "does it survive 60 seconds without crashing" — both necessary, neither sufficient. Prior work has measured FP rates as high as <strong>94%</strong>.
                         </p>
                         <p>
-                            所以核心问题只有一个:<strong>有没有一套源码层、可勾选的准则,能定义"什么样的 harness 才算好"?</strong>
+                            That reduces the core question to a specification problem. <strong>Write down a source-level, checkable definition of what counts as a "good" fuzz harness.</strong>
                         </p>
                         <p>
-                            这篇给出的答案是<strong>四原则</strong>。下一节先把准则本身列清楚。
+                            Our answer is the <strong>Four Principles</strong>. The next section walks through them.
                         </p>
                         <p>
-                            但只有定义还不够 —— <strong>怎么知道这套准则真的对?</strong>办法是用它去识别坏 harness:如果它能在大批生产代码上稳定地挑出那些有问题的 harness、并且我们提的修复能被维护者认同,这套准则就站得住。<em>识别坏 harness 不是"应用",是"验证"。</em>所以我们把它拉到 OSS-Fuzz 上跑了一遍 —— 70 个项目、586 个生产 harness。结果是这套准则识别出 <strong>53 个违规并各自给出修复 PR</strong>,其中 <strong>45 个(85%)被维护者验证或修复</strong>(35 个已合并、剩余 10 个 acknowledge 为真问题但 PR 未合),中间还<strong>拦下 14 个本来会被错报的 FP</strong>,顺带把<strong>两个被失效 harness 长期掩盖的真上游 bug</strong>(含一个潜伏 25 年的 OpenSSL 老 bug)暴露出来。
+                            A definition by itself isn't enough. We also need to know whether those criteria actually capture "good", and the test we use for that is simple. Apply the criteria to a large sample of production harnesses, and check whether the ones the criteria flag are also the ones real maintainers want fixed. If maintainers consistently accept the resulting repair PRs, the criteria are tracking something real. If they shrug those PRs off, the criteria are noise.
                         </p>
                         <p>
-                            下面分别讲清楚:四原则本体(下一节),拉到 OSS-Fuzz 上跑出来的验证结果(再下一节),以及那两个被遮的真上游 bug(最后)。
+                            So <em>identifying bad harnesses isn't a downstream application of the Four Principles. It's the validation experiment for them.</em>
+                        </p>
+                        <p>
+                            We ran that experiment on OSS-Fuzz across 70 projects and 586 production harnesses. Here is what came back.
+                        </p>
+                        <ul>
+                            <li><strong>53 violations identified.</strong> Each became a fix PR filed upstream.</li>
+                            <li><strong>45 of those 53 (85%) were verified or merged by maintainers.</strong> 35 have already landed; the other 10 were acknowledged as real problems with the PR still in queue.</li>
+                            <li><strong>14 of the 53 would have produced false-positive ASan or LSan crashes if left in place.</strong> The audit caught all 14 before they ever reached upstream.</li>
+                            <li><strong>Two latent library bugs surfaced once the broken harnesses were fixed</strong>, including a 25-year-old OpenSSL DES stack-buffer over-read.</li>
+                        </ul>
+                        <p>
+                            The rest of this post follows that order. First the criteria themselves, then what the audit found in production, then the two latent bugs the audit unmasked.
                         </p>
                     </section>
 
