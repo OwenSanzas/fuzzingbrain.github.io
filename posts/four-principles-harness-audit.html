@@ -248,6 +248,9 @@ delete_parser:
                         </ul>
                         <br>
                         <p>
+                            P3 是判断题,不是机械题。"某个 static 函数能不能合理拉出来用 / 同一个 crash 公开侧能不能复现"这种问题要靠项目语境 —— 资深 reviewer 读过库的 <code>SECURITY.md</code>、写过类似 fuzzer、了解项目历史,凭经验就能判;<strong>对没有项目上下文的第三方通用 LLM 来说不行</strong>,它没读过 <code>SECURITY.md</code>、每次给的理由都不一样,容易"看着像内部符号"就一律否掉合理用法。所以 P3(以及下面的 P4)在我们的流水线里都不让 LLM 单点拍板:LLM 列候选,静态调用图给可达性,引用必须落到 <code>file:line</code>,资深 reviewer review borderline。LLM 在这里是工具,不是裁判。
+                        </p>
+                        <p>
                             <strong>P3 违反 ⇒ 这个 crash 在没人能从公开侧到达的代码路径上。</strong>哪怕真崩了也很难修 —— 上游通常会标 NOT_REPRODUCIBLE_FROM_PUBLIC_API。
                         </p>
 
@@ -270,32 +273,54 @@ delete_parser:
                             把 P1 和 P2 落到工程上,我们各拆成 8 个具体的子检查。审计 / 生成 / verify 三个阶段都用同一套清单,这样三个阶段的判定才能互相对照。
                         </p>
 
-                        <h4>P1 — Logic Correctness 的 8 条子检查</h4>
-                        <ul>
-                            <li><strong>P1.1 Resource leaks</strong> —— 每条退出路径都释放掉所有 <code>alloc</code> / fd / lock / handle</li>
-                            <li><strong>P1.2 Use-after-free</strong> —— 释放之后不再读取或传递该指针</li>
-                            <li><strong>P1.3 Stale state</strong> —— <code>LLVMFuzzerTestOneInput</code> 多次调用之间不携带 static / global 状态</li>
-                            <li><strong>P1.4 Input flow</strong> —— fuzz 字节真的流到目标 API 的参数里(call 不是被常量驱动的)</li>
-                            <li><strong>P1.5 Buffer safety</strong> —— fuzz buffer 读取有上界、C 字符串带 <code>\0</code>、索引带长度检查</li>
-                            <li><strong>P1.6 Size checks</strong> —— 输入小于 API 最小值时早返回</li>
-                            <li><strong>P1.7 Undefined behaviour</strong> —— 没有 OOB / null-deref / 有符号溢出 / 未对齐 cast</li>
-                            <li><strong>P1.8 No reimplementation</strong> —— 调真的库代码,不是 harness 里 inline 的本地复制</li>
-                        </ul>
+                        <h4>P1 — Logic Correctness · 8 sub-checks</h4>
+                        <div class="vuln-table-wrapper">
+                            <table class="vuln-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 8%;">ID</th>
+                                        <th style="width: 22%;">Sub-check</th>
+                                        <th>What it requires</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td><strong>P1.1</strong></td><td>Resource leaks</td><td>Every exit path releases all <code>alloc</code> / fd / lock / handle</td></tr>
+                                    <tr><td><strong>P1.2</strong></td><td>Use-after-free</td><td>No read or pass of a pointer after free</td></tr>
+                                    <tr><td><strong>P1.3</strong></td><td>Stale state</td><td>No static / global state carried across <code>LLVMFuzzerTestOneInput</code> invocations</td></tr>
+                                    <tr><td><strong>P1.4</strong></td><td>Input flow</td><td>Fuzz bytes actually reach the target API arguments (call not driven by constants)</td></tr>
+                                    <tr><td><strong>P1.5</strong></td><td>Buffer safety</td><td>Bounded fuzz-buffer reads, null-terminated C strings, length-checked indexing</td></tr>
+                                    <tr><td><strong>P1.6</strong></td><td>Size checks</td><td>Early return when input is below the API minimum</td></tr>
+                                    <tr><td><strong>P1.7</strong></td><td>Undefined behaviour</td><td>No OOB / null-deref / signed overflow / unaligned cast</td></tr>
+                                    <tr><td><strong>P1.8</strong></td><td>No reimplementation</td><td>Calls real library code, not an inline local copy</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
 
-                        <h4>P2 — API Protocol Compliance 的 8 条子检查</h4>
-                        <ul>
-                            <li><strong>P2.1 Init sequence</strong> —— 调用目标前所有必需的前置 API 都按顺序到位</li>
-                            <li><strong>P2.2 Parameter construction</strong> —— 每个参数的类型 / 范围 / owner / 生命周期都对</li>
-                            <li><strong>P2.3 Object lifecycle</strong> —— opaque 对象走完 create → configure → use → destroy</li>
-                            <li><strong>P2.4 Return value handling</strong> —— 检查 return code、走 error branch、对失败 gated 的输出不再使用</li>
-                            <li><strong>P2.5 Cleanup sequence</strong> —— 所有退出路径上,资源按 API 文档要求的顺序释放</li>
-                            <li><strong>P2.6 API existence</strong> —— 调到的每个函数在 pinned build 的库里真的导出</li>
-                            <li><strong>P2.7 Co-call constraints</strong> —— 配对 API 共现;互斥 API 不并用</li>
-                            <li><strong>P2.8 Prerequisite state</strong> —— 外部状态(fd / socket / env / thread)在调目标前就位、之后回收</li>
-                        </ul>
+                        <h4>P2 — API Protocol Compliance · 8 sub-checks</h4>
+                        <div class="vuln-table-wrapper">
+                            <table class="vuln-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 8%;">ID</th>
+                                        <th style="width: 22%;">Sub-check</th>
+                                        <th>What it requires</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td><strong>P2.1</strong></td><td>Init sequence</td><td>All required predecessors called in order before the target</td></tr>
+                                    <tr><td><strong>P2.2</strong></td><td>Parameter construction</td><td>Each parameter has the right type, range, owner, and lifetime</td></tr>
+                                    <tr><td><strong>P2.3</strong></td><td>Object lifecycle</td><td>Opaque objects go through create → configure → use → destroy</td></tr>
+                                    <tr><td><strong>P2.4</strong></td><td>Return value handling</td><td>Return codes checked, error branches exercised, gated output not reused after failure</td></tr>
+                                    <tr><td><strong>P2.5</strong></td><td>Cleanup sequence</td><td>Resources released in API-documented order on every exit path</td></tr>
+                                    <tr><td><strong>P2.6</strong></td><td>API existence</td><td>Every called function is exported in the pinned build of the library</td></tr>
+                                    <tr><td><strong>P2.7</strong></td><td>Co-call constraints</td><td>Paired APIs co-occur; mutually exclusive APIs do not</td></tr>
+                                    <tr><td><strong>P2.8</strong></td><td>Prerequisite state</td><td>External state (fd / socket / env / thread) set up before the target call and torn down after</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
 
                         <p>
-                            每条子检查具体怎么落地 —— 哪些用 LLM 读源码 + cite <code>file:line</code>、哪些用 GDB 在目标 API 下断点、哪些用 ASan / LSan 抓 sanitizer trace,以及三个 stage 之间探针输入的差异 —— 我们放到<a href="logic-groups-and-reverse-four-principles.html">下一篇</a>讲反向流水线时一起展开。这一节先把准则本身列清楚就好。
+                            Implementation details (which sub-checks use LLM-read source with <code>file:line</code> citations, which use GDB breakpoints on the target API, which read ASan / LSan sanitizer traces) and how prober inputs differ across the three stages are covered in the <a href="logic-groups-and-reverse-four-principles.html">next post</a> on the reverse pipeline. This section just lays down the criteria themselves.
                         </p>
 
                         <h3>为什么是这四条 —— 而不是三条或五条</h3>
@@ -306,21 +331,6 @@ delete_parser:
                             少一条会有缺口 —— 例如砍掉 P3,LLM 生成的 harness 经常会"为了让 fuzzer 更快进入有趣代码"而<em>有意</em>跳过公开入口的校验,这是和真实攻击模型最违和的一种 cheating;砍掉 P4,你就没法解释为什么明明覆盖率涨了上游却不感兴趣。多一条则会让审计成本不再可承受 —— 我们试过加"P5: Reproducibility"和"P6: Coverage Non-Regression",发现都可以归并到 P1/P2 的子检查里,没有新增信息量。
                         </p>
 
-                        <h3>P3 / P4 的判断:人能负责,通用 LLM 不能</h3>
-                        <p>
-                            P1 和 P2 是<strong>能机械化</strong>的 —— 子检查清单写死在 P1.1–P1.8、P2.1–P2.8,LLM agent 顺着打勾就行。但 P3 和 P4 不一样,这两条都涉及<em>判断</em>:
-                        </p>
-                        <ul>
-                            <li>P3 要判断"这个内部符号的用法是否合理 / 同样 crash 是否能从公开侧复现"</li>
-                            <li>P4 要判断"这个入口是不是真实攻击面 / 它在当前版本里是否仍然是公开攻击面"</li>
-                        </ul>
-                        <br>
-                        <p>
-                            这种判断<strong>资深 reviewer 完全可以承担</strong> —— 一个读过库 <code>SECURITY.md</code>、写过类似 fuzzer、了解项目历史的人,凭直觉就能区分"这个内部状态机其实是某公开 API 的等价中间态"和"这个内部符号根本不该被外部触达"。但<strong>对没有项目上下文的第三方通用 LLM 来说不行</strong>:它会因为"看着像内部符号"就拒绝合理用法,或者把 deprecated demo 当成有趣攻击面;它没办法 cite 上游的 SECURITY.md 因为它没读过;它的判断不可问责,因为它每次产出的理由都不一样。
-                        </p>
-                        <p>
-                            所以我们的流水线在 P3/P4 这两层<strong>不让 LLM 单点决策</strong>。具体做法:LLM agent 给候选 + 静态调用图给可达性 + 引用必须落到 <code>file:line</code> + 资深 reviewer 在 borderline case 上 review。LLM 在这里是工具,不是裁判。这条边界很重要 —— 把"LLM 能不能做这个决定"和"LLM 能不能写代码 / 列候选"分开看,工程化才有可能。
-                        </p>
                     </section>
 
                     <!-- Audit Run -->
