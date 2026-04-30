@@ -46,7 +46,7 @@
                         <span class="post-readtime">14 min read</span>
                     </div>
                     <h1 class="post-title-main">Harness 也会有 bug:基于四原则的 OSS-Fuzz Harness 审计</h1>
-                    <p class="post-subtitle">想让 LLM 自动生成"好"的 fuzz harness,先得回答一个更基础的问题:什么样的 harness 才算好,有没有一套准则?有了准则,它能不能帮我们识别坏 harness?这篇是回答的开始 —— 我们提出四原则,并在 70 个 OSS-Fuzz 项目的 586 个生产 harness 上验证它,拦下 14 个本会被错报的 FP,提了 53 个修复 PR,顺带把两个被失效 harness 长期掩盖的真上游 bug 暴露出来,其中一个在 OpenSSL DES 实现里潜伏了 25 年以上。</p>
+                    <p class="post-subtitle">想让 LLM 自动生成"好"的 fuzz harness,先得回答一个更基础的问题:什么样的 harness 才算好,有没有一套准则?这篇提出我们的回答 —— 四原则。要验证它真的对,办法是看它能不能在生产代码上识别坏 harness:我们在 70 个 OSS-Fuzz 项目的 586 个 harness 上跑了一遍,拦下 14 个本会被错报的 FP,提了 53 个修复 PR,顺带把两个被失效 harness 长期掩盖的真上游 bug 暴露出来,其中一个在 OpenSSL DES 实现里潜伏了 25 年以上。</p>
                 </div>
             </div>
 
@@ -93,18 +93,16 @@
                             我们和 50 个 OSS-Fuzz 项目维护者沟通过"是否愿意接受 AI 辅助生成的 harness 和 bug 报告"。<strong>58% 直接没回</strong>;在回应里,排第一的顾虑不是覆盖率或速度,而是"信任" —— 他们已经被前几代自动化报告里的 FP 噪声反复打扰过,看到再来就只想关闭。
                         </p>
                         <p>
-                            所以问题需要被分解成三步问:
-                        </p>
-                        <ol>
-                            <li><strong>有没有一套源码层、可勾选的准则,定义"什么样的 harness 才算好"?</strong></li>
-                            <li><strong>这套准则能不能在生产代码上找出"不够好"的 harness?</strong>(没法找出问题的准则就只是好看的口号。)</li>
-                            <li>能找出问题之后,这些"<strong>不够好</strong>"的 harness 是不是真的造成了我们想象的那种危害(FP / 上游不信任 / 真 bug 被遮)?</li>
-                        </ol>
-                        <p>
-                            这篇要给出的答案是:有,我们叫它<strong>四原则</strong>;能,我们在 OSS-Fuzz 上 70 个项目的 <strong>586 个生产 harness</strong> 上验证了一遍;是,这一轮审计直接<strong>拦下 14 个本来会被错报的 FP</strong>、提了 53 个修复 PR、顺带把两个被失效 harness 长期掩盖的真上游 bug(含一个潜伏 25 年的 OpenSSL 老 bug)暴露出来。
+                            所以核心问题只有一个:<strong>有没有一套源码层、可勾选的准则,能定义"什么样的 harness 才算好"?</strong>
                         </p>
                         <p>
-                            下面分别讲清楚:四原则是什么(下一节),用它在 OSS-Fuzz 上跑了一轮的结果(再下一节),以及那两个意外战利品(最后)。
+                            这篇给出的答案是<strong>四原则</strong>。下一节先把准则本身列清楚。
+                        </p>
+                        <p>
+                            但只有定义还不够 —— <strong>怎么知道这套准则真的对?</strong>办法是用它去识别坏 harness:如果它能在大批生产代码上稳定地挑出那些有问题的 harness、并且我们提的修复能被维护者认同,这套准则就站得住。<em>识别坏 harness 不是"应用",是"验证"。</em>所以我们把它拉到 OSS-Fuzz 上跑了一遍 —— 70 个项目、586 个生产 harness。结果是这套准则识别出 53 个违规、其中 45 个被维护者 confirm、35 个被 merge,中间还<strong>拦下 14 个本来会被错报的 FP</strong>,顺带把<strong>两个被失效 harness 长期掩盖的真上游 bug</strong>(含一个潜伏 25 年的 OpenSSL 老 bug)暴露出来。
+                        </p>
+                        <p>
+                            下面分别讲清楚:四原则本体(下一节),拉到 OSS-Fuzz 上跑出来的验证结果(再下一节),以及那两个被遮的真上游 bug(最后)。
                         </p>
                     </section>
 
