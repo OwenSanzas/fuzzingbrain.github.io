@@ -87,10 +87,7 @@
                     <section>
                         <h2>从一个被绕开的问题说起</h2>
                         <p>
-                            <strong>"我想让 LLM 自动生成 fuzz harness"</strong> —— 这个目标这两年在学术圈和工业界都很热。但深一层看,它依赖一个被普遍跳过的前提:<em>什么样的 harness 才算"好"?</em>没有这个定义,LLM 生成的产物只能用"build 通过"和"60 秒不崩"来打分 —— 这两个信号是必要不充分的,既往工作记录到的 FP 率<strong>高达 94%</strong>。
-                        </p>
-                        <p>
-                            我们和 50 个 OSS-Fuzz 项目维护者沟通过"是否愿意接受 AI 辅助生成的 harness 和 bug 报告"。<strong>58% 直接没回</strong>;在回应里,排第一的顾虑不是覆盖率或速度,而是"信任" —— 他们已经被前几代自动化报告里的 FP 噪声反复打扰过,看到再来就只想关闭。
+                            <strong>"I want an LLM to generate fuzz harnesses for me"</strong> — this goal has been getting heavy attention from both academia and industry over the past couple of years. But look one layer deeper and it rests on a premise almost everyone skips over: <em>what makes a harness "good"?</em> Without that definition, the only way to score what an LLM produces is "does it build" and "does it survive 60 seconds without crashing" — both necessary, neither sufficient. Prior work has measured FP rates as high as <strong>94%</strong>.
                         </p>
                         <p>
                             所以核心问题只有一个:<strong>有没有一套源码层、可勾选的准则,能定义"什么样的 harness 才算好"?</strong>
