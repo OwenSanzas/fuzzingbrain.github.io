@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adversarial Harness Generation on the Four Principles: 470 Harnesses × 30 Vulns × 2 Weeks - FuzzingBrain</title>
+    <title>Adversarial Harness Generation on the Four Principles: 472 Harnesses × 30 Vulns × 2 Weeks - FuzzingBrain</title>
     <link rel="stylesheet" href="../styles.css">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
@@ -45,8 +45,8 @@
                         <span class="post-category">Vulnerability Discovery</span>
                         <span class="post-readtime">15 min read</span>
                     </div>
-                    <h1 class="post-title-main">Adversarial Harness Generation on the Four Principles: 470 Harnesses × 30 Vulns × 2 Weeks</h1>
-                    <p class="post-subtitle">Part 1 used the four principles as an <em>audit</em> criterion, catching existing OSS-Fuzz harnesses after the fact. This post flips the direction. The principles become a <em>generation</em> criterion: start at P4 by picking the attack surface, combine that with Logic Group as a semantic-unit slicer, then put every harness through Stage-4 adversarial probing as a built-in QA gate. Two weeks, <strong>472 harnesses across Chromium and its upstream dependencies</strong> (the headline rounds to 470), <strong>30 vulnerabilities filed upstream</strong> (16 maintainer-acknowledged so far — 9 confirmed and 7 fixed — plus 3 returned as FP and 3 newly filed in flight), and <strong>52 candidate findings dropped during our internal audit</strong> before any of them could reach a maintainer.</p>
+                    <h1 class="post-title-main">Adversarial Harness Generation on the Four Principles: 472 Harnesses × 30 Vulns × 2 Weeks</h1>
+                    <p class="post-subtitle">Part 1 used the four principles as an <em>audit</em> criterion, catching existing OSS-Fuzz harnesses after the fact. This post flips the direction. The principles become a <em>generation</em> criterion: start at P4 by picking the attack surface, combine that with Logic Group as a semantic-unit slicer, then put every harness through Stage-4 adversarial probing as a built-in QA gate. Two weeks, <strong>472 harnesses across Chromium and its upstream dependencies</strong>, <strong>30 vulnerabilities filed upstream</strong> (16 maintainer-acknowledged so far — 9 confirmed and 7 fixed — plus 3 returned as FP and 3 newly filed in flight), and <strong>52 candidate findings dropped during our internal audit</strong> before any of them could reach a maintainer.</p>
                 </div>
             </div>
 
@@ -90,7 +90,7 @@
                             <a href="four-principles-harness-audit.html">Part 1</a> used the four principles (P1 Logic Correctness / P2 API Protocol Compliance / P3 Security Boundary Respect / P4 Entry Point Adequacy) as an <strong>audit</strong> tool. The harness was already running on OSS-Fuzz; we read it back and checked whether it was correct. The result was 53 fix PRs across 586 harnesses, 14 false positives prevented, and one OpenSSL stack over-read latent for 25 years. The source-level definition of the principles and the 16 sub-checks (P1.1–P1.8 / P2.1–P2.8) all live in that post and are not repeated here.
                         </p>
                         <p>
-                            But the same four rules can also be used <em>before</em> the harness exists — to internalize "what counts as a good harness" inside the generation pipeline rather than catch it post-hoc. That is what this post is about: <strong>flip the four principles around</strong> (P4 → P3 → P2 → P1), pair them with a tool that slices a library into independently fuzzable semantic units — <strong>Logic Group</strong> — and in two weeks generate, deploy, and fuzz <strong>472 harnesses</strong> across Chromium and its upstream dependencies (the title's 470 is a rounded headline; the precise count is 472).
+                            But the same four rules can also be used <em>before</em> the harness exists — to internalize "what counts as a good harness" inside the generation pipeline rather than catch it post-hoc. That is what this post is about: <strong>flip the four principles around</strong> (P4 → P3 → P2 → P1), pair them with a tool that slices a library into independently fuzzable semantic units — <strong>Logic Group</strong> — and in two weeks generate, deploy, and fuzz <strong>472 harnesses</strong> across Chromium and its upstream dependencies.
                         </p>
                     </section>
 
