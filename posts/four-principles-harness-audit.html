@@ -197,6 +197,21 @@
                         <p>
                             少一条会有缺口 —— 例如砍掉 P3,LLM 生成的 harness 经常会"为了让 fuzzer 更快进入有趣代码"而<em>有意</em>跳过公开入口的校验,这是和真实攻击模型最违和的一种 cheating;砍掉 P4,你就没法解释为什么明明覆盖率涨了上游却不感兴趣。多一条则会让审计成本不再可承受 —— 我们试过加"P5: Reproducibility"和"P6: Coverage Non-Regression",发现都可以归并到 P1/P2 的子检查里,没有新增信息量。
                         </p>
+
+                        <h3>P3 / P4 的判断:人能负责,通用 LLM 不能</h3>
+                        <p>
+                            P1 和 P2 是<strong>能机械化</strong>的 —— 子检查清单写死在 P1.1–P1.8、P2.1–P2.8,LLM agent 顺着打勾就行。但 P3 和 P4 不一样,这两条都涉及<em>判断</em>:
+                        </p>
+                        <ul>
+                            <li>P3 要判断"这个内部符号的用法是否合理 / 同样 crash 是否能从公开侧复现"</li>
+                            <li>P4 要判断"这个入口是不是真实攻击面 / 它在当前版本里是否仍然是公开攻击面"</li>
+                        </ul>
+                        <p>
+                            这种判断<strong>资深 reviewer 完全可以承担</strong> —— 一个读过库 <code>SECURITY.md</code>、写过类似 fuzzer、了解项目历史的人,凭直觉就能区分"这个内部状态机其实是某公开 API 的等价中间态"和"这个内部符号根本不该被外部触达"。但<strong>对没有项目上下文的第三方通用 LLM 来说不行</strong>:它会因为"看着像内部符号"就拒绝合理用法,或者把 deprecated demo 当成有趣攻击面;它没办法 cite 上游的 SECURITY.md 因为它没读过;它的判断不可问责,因为它每次产出的理由都不一样。
+                        </p>
+                        <p>
+                            所以我们的流水线在 P3/P4 这两层<strong>不让 LLM 单点决策</strong>。具体做法:LLM agent 给候选 + 静态调用图给可达性 + 引用必须落到 <code>file:line</code> + 资深 reviewer 在 borderline case 上 review。LLM 在这里是工具,不是裁判。这条边界很重要 —— 把"LLM 能不能做这个决定"和"LLM 能不能写代码 / 列候选"分开看,工程化才有可能。
+                        </p>
                     </section>
 
                     <!-- Audit Run -->

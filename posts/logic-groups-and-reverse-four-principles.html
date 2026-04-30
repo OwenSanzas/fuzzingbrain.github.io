@@ -117,6 +117,10 @@
                         <p>
                             生成阶段任何一步失败都不进入下一步。对 LLM 来说,这把"自由发挥的空间"逐层收窄,产出的 harness 不会跑题到内部 helper 上,也不会用一个错误的调用顺序把库的真实行为遮掉。
                         </p>
+
+                        <p>
+                            还有一个关键的工程边界值得点出:<strong>P3 和 P4 的判断不交给 LLM 单点决策</strong>。这两步都涉及"这个用法是否合理 / 这个入口是否在真实攻击面上"的判断 —— 一个读过库 SECURITY.md、做过 review 的人能凭直觉给出靠谱答案,<strong>但一个没有项目上下文的第三方通用 LLM 给不出</strong>。所以反向流水线在 Stage 1(P4/P3)这一步走的是"LLM 列候选 + 静态调用图给可达性 + 资深 reviewer 在 borderline case review"的组合,而不是让 LLM 一锤定音。这条边界让流水线的 470 个 fuzzer 在质量上能被人问责。
+                        </p>
                     </section>
 
                     <!-- Logic Group -->
