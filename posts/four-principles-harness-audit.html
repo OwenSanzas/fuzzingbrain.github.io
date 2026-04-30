@@ -329,10 +329,13 @@ delete_parser:
                     <section>
                         <h2>审计:70 个项目 × 586 个 harness</h2>
                         <p>
-                            理论说完了,真要看四原则有没有用,得拉到生产代码上跑一轮。我们选了 OSS-Fuzz 上 70 个 C/C++ 项目作为审计对象 —— 这些项目的 harness 大多由项目维护者本人或资深贡献者写,经过上游 PR review,在 ClusterFuzz 上跑了好多年,被普遍认为是"高质量基线"。
+                            我们的真正目标是用四原则<strong>生成</strong>正确的 harness。但要相信它能用在生成阶段,得先证明一件更基础的事:四原则到底能不能识别出 harness 的问题、并指导修复?这一节是这个证明实验。
                         </p>
                         <p>
-                            从这 70 个项目里我们抓出了 <strong>586 个生产 harness</strong>。审计流程是:
+                            实验设计是这样:<strong>把现有的生产 harness 当作"第一轮 LLM 生成的输出"</strong> —— LLM 给一个候选 harness,我们用四原则去审,把找到的问题反馈给 LLM 让它继续改,直到通过。这个 audit-and-refine 的循环,就是把"生成"的中间环节单独拎出来跑给我们看。如果它能在真实生产代码上稳定地挑出问题、提出能被维护者接受的修复,那放回完整生成流水线里也站得住。
+                        </p>
+                        <p>
+                            实验对象选 OSS-Fuzz 上 <strong>70 个 C/C++ 项目</strong>作为基线 —— 这些项目的 harness 大多由项目维护者本人或资深贡献者写,经过上游 PR review,在 ClusterFuzz 上跑了多年。从这 70 个项目里我们抓出了 <strong>586 个生产 harness</strong>。流程是:
                         </p>
                         <ul>
                             <li>静态过:LLM agent 直接读 harness 源 + 库头文件,跑过 P1.1–P1.8、P2.1–P2.8 全部 16 个子检查 —— 引用必须落到 <code>file:line</code></li>
