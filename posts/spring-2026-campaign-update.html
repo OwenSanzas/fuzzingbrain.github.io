@@ -8,11 +8,19 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
     <style>
-        /* Hero stat cards sit on the indigo banner; the default stat-label
-           (slate-400 gray) reads as muddy on indigo. Force a near-white
-           color so the "Discovered · +41 since Feb" sub-label is legible. */
+        /* Drop the default indigo banner background and use a neutral
+           dark surface instead. Higher contrast against gray sub-labels
+           and matches the rest of the cards on the page. */
+        .results-banner {
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
         .results-banner .stat-label {
-            color: rgba(255, 255, 255, 0.92);
+            color: var(--text-secondary);
+        }
+        .result-stat {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
         }
     </style>
 </head>
