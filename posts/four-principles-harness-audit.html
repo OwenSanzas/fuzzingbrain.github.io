@@ -167,7 +167,7 @@
                             <strong>A P1 violation means the root cause is the harness itself, but the sanitizer trace will not necessarily stop inside the harness.</strong> The more common pattern is the harness pushing bad state into the library. Examples include oversized buffers, NULL pointers, uninitialized structs, and freed objects. The library code is what trips ASan or LSan, the trace looks like a library bug, and the root cause is still the caller violating the contract. That is the most confusing kind of P1 false positive. Wherever the trace lands, if P1 doesn't pass, the report is noise.
                         </p>
 
-                        <h3>P2 — API Protocol Compliance:harness 必须遵守库的契约</h3>
+                        <h3>P2 — API Protocol Compliance: the harness must obey the library's contract</h3>
                         <p>
                             Every library API comes with its own usage contract. The contract covers when to init, when to destroy, what parameter ranges are valid, which return values must be checked, and which calls must be paired. LLM-generated harnesses violate these contracts a lot, because the LLM cannot infer a full state machine from a single function signature. The eight P2 sub-checks are listed in the P1.1–P2.8 checklist below.
                         </p>
