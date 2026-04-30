@@ -378,6 +378,36 @@ delete_parser:
 
                     </section>
 
+                    <!-- 2 incidental real bugs (the headline) -->
+                    <section>
+                        <h2>意外战利品:两个被 harness 遮住的真上游 bug</h2>
+                        <p>
+                            这次审计最值得拿出来讲的不是数字,而是两个<strong>本来就在库里、但被错误的 harness 长期遮住的真 bug</strong>。修一个 P2 违规,有时会顺手把库的真实行为重新暴露给 sanitizer —— 这正是这次审计里发生的事。
+                        </p>
+
+                        <h3>案例 1:OpenSSL DES 栈缓冲读越界 —— 潜伏 25+ 年</h3>
+                        <p>
+                            OpenSSL 的某个 harness 有一个 API 调用顺序上的 P2 违规,导致整条 cipher 路径在它的执行轨迹里其实是 dead code。修好之后,fuzzer 跑几秒就在 OpenSSL DES 实现里抛出一个 stack-buffer-overread。
+                        </p>
+                        <p>
+                            这个 bug 的本体在 OpenSSL DES 模块里趟了 <strong>25 年以上</strong>,比 OpenSSL 这个名字本身还要老。它一直没被发现,不是因为难找,而是<strong>过去所有走到这条路径的 harness 都因为同样的 P2 错误根本没真正进到这个函数</strong>。一个调用顺序错误,把一个公开 API 的内存安全 bug 隐藏了 1/4 个世纪。
+                        </p>
+                        <p>
+                            上游 issue:<a href="https://github.com/openssl/openssl/issues/30284">openssl/openssl#30284</a>。修复已合并,issue 已关闭。
+                        </p>
+
+                        <h3>案例 2:tidy-html5 内存泄漏 —— 缺一次 cleanup 调用</h3>
+                        <p>
+                            tidy-html5 的某个 harness 漏掉了一次必要的 cleanup 调用,违反 P2 的"paired API"约束。补上这一次调用之后,harness 立刻在原本被 cleanup 掩盖的路径上抛出 <code>LeakSanitizer</code> 警告 —— 是库内部 lexer 里的真 leak。
+                        </p>
+                        <p>
+                            根因和上面 OpenSSL 那条完全是一类:<strong>错误的 harness 用法把库的真实行为掩盖了</strong>。你可以把这两个看作"P2-driven bug discovery"的代表 —— 修 harness 不只是把 FP 干掉,更是在把库的真实行为重新暴露给 sanitizer。
+                        </p>
+                        <p>
+                            上游 issue:<a href="https://github.com/htacg/tidy-html5/issues/1177">htacg/tidy-html5#1177</a>。
+                        </p>
+                    </section>
+
                     <!-- 14 FPs -->
                     <section>
                         <h2>14 个永远不会变成噪声 bug 报告的 FP</h2>
@@ -404,56 +434,6 @@ delete_parser:
                         </p>
                     </section>
 
-                    <!-- 2 incidental real bugs -->
-                    <section>
-                        <h2>意外战利品:两个被 harness 遮住的真上游 bug</h2>
-                        <p>
-                            做这种审计有个有意思的副作用 —— 修一个 P2 违规,有时会<strong>把库本来就有、但被错误的 harness 长期遮住的 bug</strong>暴露出来。这次审计里出了两个这样的案例。
-                        </p>
-
-                        <h3>案例 1:OpenSSL DES 栈缓冲读越界 —— 潜伏 25+ 年</h3>
-                        <p>
-                            OpenSSL 的 <code>provider</code> harness 在调用顺序上有一个微妙的错误:它把 <code>EVP_CIPHER_CTX_set_params</code> 放在了 <code>EVP_EncryptInit_ex2</code> 之前。这违反了 P2 —— 在 context 还没初始化的时候 set params 会直接 return 0,等于这条 cipher 路径永远是 dead code。
-                        </p>
-                        <p>
-                            修好这个调用顺序之后,harness 的覆盖率立刻多了 <strong>+51.4% edges</strong>,fuzzer 跑了几秒就抛出了 <code>DES_ede3_ofb64_encrypt</code> 里的 stack-buffer-overread。根因是 <code>num</code> 参数没有上界检查,可以从 EVP API 设到 ≥8,使第一轮循环就读到栈本地 <code>DES_cblock d[8]</code> 之外。
-                        </p>
-                        <p>
-                            这个 bug 的本体在 <code>crypto/des/ofb64ede.c</code> 里趟了 <strong>25 年以上</strong> —— 是 OpenSSL 项目本身比 OpenSSL 这个名字还要老的代码。它没被发现的原因不是难找,而是<strong>过去所有走到这条路径的 harness 都因为 P2 错误根本没真正进到这个函数</strong>。一个调用顺序错误,把一个公开 API 的内存安全 bug 隐藏了 1/4 个世纪。
-                        </p>
-                        <p>
-                            上游已经合并了我们的修复,issue 也关闭了。
-                        </p>
-
-                        <h3>案例 2:tidy-html5 内存泄漏 —— 缺一次 cleanup 调用</h3>
-                        <p>
-                            tidy-html5 的某个 harness 漏掉了一次必要的 cleanup 调用,违反 P2 的"paired API"约束。补上这一次调用之后,harness 立刻在原本被 cleanup 掩盖的路径上抛出 <code>LeakSanitizer</code> 警告 —— 是库内部 lexer 里的真 leak。
-                        </p>
-                        <p>
-                            根因和上面那条 OpenSSL 完全是一类:<strong>错误的 harness 用法把库的真实行为掩盖了</strong>。你可以把这两个看作"P2-driven bug discovery"的代表 —— 修 harness 不只是把 FP 干掉,更是在把库的真实行为重新暴露给 sanitizer。
-                        </p>
-                    </section>
-
-                    <!-- Maintainer adoption -->
-                    <section>
-                        <h2>维护者反馈:不止是合并 PR</h2>
-                        <p>
-                            这次审计的结尾不是 35 个 PR 合进 OSS-Fuzz 然后散场(剩下 10 个维护者已 acknowledge 但 PR 还在排队)。<strong>有 4 个维护者团队进一步把我们的 harness 或衍生 artifact 集成进了他们自己的工程化流程</strong>:
-                        </p>
-                        <ul>
-                            <li><strong>OpenSSL</strong> 直接采纳了我们对 <code>quic_server</code> harness 的重写版本(P1+P2 双修复),分支覆盖率提到 2.64×。这个版本现在跑在 OSS-Fuzz 的 OpenSSL 任务里。</li>
-                            <li><strong>fwupd</strong> 在他们自己的 fuzz 集成里把我们的修复版当作起点,后面又在此基础上写了新的 harness。</li>
-                            <li>另两个团队把审计过程里产生的副产品(corpus、structured config)纳入了自己的回归集。</li>
-                        </ul>
-                        <br>
-                        <p>
-                            这是这次工作里最让我们意外的回报 —— 维护者不是把我们的 PR 当作"AI 自动化的低质量噪声"草草接受,而是看到了"高质量审计 + 可执行的修复"之后,主动反向把我们的 artifact 当作工程化资源。
-                        </p>
-                        <p>
-                            维护者的反馈直接验证了开篇那个 58% 不回的猜测:他们不是反对自动化,他们是反对<strong>没经过质量把关</strong>的自动化。
-                        </p>
-                    </section>
-
                     <!-- Coverage gain illustration -->
                     <section>
                         <h2>顺带:覆盖率的提升不是目标,但很可观</h2>
@@ -465,7 +445,6 @@ delete_parser:
                             <li><code>libyaml/emitter</code> — <strong>14×</strong> edges</li>
                             <li><code>openssl/quic_server</code> — <strong>+65.7%</strong></li>
                             <li><code>bzip2/bzip2_fd</code> — <strong>+52.4%</strong></li>
-                            <li><code>openssl/provider</code> — <strong>+51.4%</strong>(就是上面那个 25 年老 bug 的现场)</li>
                             <li><code>tidy-html5/general</code> — <strong>+33.5%</strong></li>
                             <li><code>boost/filesystem</code> — <strong>+21.9%</strong></li>
                         </ul>
