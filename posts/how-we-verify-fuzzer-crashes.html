@@ -314,23 +314,27 @@
                                     <span style="color: var(--text-muted); font-size: var(--font-size-xs); font-style: italic;">real maintainer verdicts; each one feeds back to harden a rule above</span>
                                 </div>
                                 <div style="display: grid; gap: 8px;">
-                                    <div style="padding: 10px 14px; background: rgba(0,0,0,0.18); border-left: 3px solid var(--red-500); border-radius: var(--radius-sm);">
-                                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;">
-                                            <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-secondary);">#9008</span>
-                                            <span style="font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 8px; background: var(--red-500); color: white; border-radius: 4px; font-weight: 700;">NO_VULNERABILITY</span>
-                                            <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint);">→ feeds_into TB-1</span>
-                                        </div>
-                                        <div style="color: var(--text-secondary); font-style: italic; font-size: var(--font-size-sm);">"Need to call Verify before access."</div>
-                                        <div style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint); margin-top: 4px;">decided 2026-04-12 · pov_called_verifier: false</div>
-                                    </div>
+                                    <!-- Real case 1: #9008 — Verifier-passed crash, accepted (validates TB-3) -->
                                     <div style="padding: 10px 14px; background: rgba(0,0,0,0.18); border-left: 3px solid var(--emerald-500); border-radius: var(--radius-sm);">
                                         <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;">
-                                            <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-secondary);">#9041</span>
+                                            <a href="https://github.com/google/flatbuffers/issues/9008" style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--primary-light); text-decoration: none;">flatbuffers#9008</a>
                                             <span style="font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 8px; background: var(--emerald-500); color: white; border-radius: 4px; font-weight: 700;">ACCEPTED</span>
+                                            <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-secondary);">heap-overflow · FlexBuffers ToString</span>
                                             <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint);">→ feeds_into TB-3</span>
                                         </div>
-                                        <div style="color: var(--text-secondary); font-style: italic; font-size: var(--font-size-sm);">"Verifier missed a bound check — fix incoming."</div>
-                                        <div style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint); margin-top: 4px;">decided 2026-04-19 · pov_called_verifier: true</div>
+                                        <div style="color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.5;">PoC called <code>VerifyBuffer</code> first; <code>ToString</code> still read past a 4-byte heap allocation. Maintainer <code>steadytao</code> confirmed in 3 days and opened <a href="https://github.com/google/flatbuffers/pull/9011" style="color: var(--primary-light); text-decoration: none;">PR #9011</a> "Reject unterminated FlexBuffers keys during verification".</div>
+                                        <div style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint); margin-top: 4px;">filed 2026-03-30 · confirmed 2026-04-03 · pov_called_verifier: true</div>
+                                    </div>
+                                    <!-- Real case 2: #9040 — reflection path, NO_VULNERABILITY (validates TB-2 even though fixed) -->
+                                    <div style="padding: 10px 14px; background: rgba(0,0,0,0.18); border-left: 3px solid var(--red-500); border-radius: var(--radius-sm);">
+                                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;">
+                                            <a href="https://github.com/google/flatbuffers/issues/9040" style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--primary-light); text-decoration: none;">flatbuffers#9040</a>
+                                            <span style="font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 8px; background: var(--red-500); color: white; border-radius: 4px; font-weight: 700;">NO_VULNERABILITY</span>
+                                            <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-secondary);">heap-overflow · Reflection VerifyObject</span>
+                                            <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint);">→ feeds_into TB-2</span>
+                                        </div>
+                                        <div style="color: var(--text-secondary); font-style: italic; font-size: var(--font-size-sm); line-height: 1.5;">"A similar HBO was reported before with <a href="https://github.com/google/flatbuffers/issues/8567" style="color: var(--primary-light); text-decoration: none; font-style: normal;">#8567</a>. The vulnerability assessment resulted in NO_VULNERABILITY, because the user has to ensure that the data is from a trusted source and has integrity. The finding still got fixed."</div>
+                                        <div style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint); margin-top: 4px;">— <code>kendegemaro</code>, 2026-04-13 · filed 2026-04-11 · cites prior verdict <a href="https://github.com/google/flatbuffers/issues/8567" style="color: var(--text-muted); text-decoration: none;">#8567</a></div>
                                     </div>
                                 </div>
                             </div>
