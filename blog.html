@@ -44,26 +44,26 @@
         <!-- Featured Post -->
         <section class="featured-post">
             <div class="section-content">
-                <div class="featured-badge">Latest Post</div>
+                <div class="featured-badge">Latest Series · April 30, 2026</div>
                 <article class="post-featured">
                     <div class="post-meta">
-                        <span class="post-date">February 6, 2026</span>
-                        <span class="post-category">Security Research</span>
-                        <span class="post-readtime">15 min read</span>
+                        <span class="post-date">April 30, 2026</span>
+                        <span class="post-category">Methodology</span>
+                        <span class="post-readtime">14 min read</span>
                     </div>
                     <h2 class="post-title">
-                        <a href="posts/zero-day-vulnerability-discoveries.html">62 Vulnerabilities, 26 Projects, 36 Patches: FuzzingBrain's Open Source Security Campaign</a>
+                        <a href="posts/four-principles-harness-audit.html">Harness 也会有 bug:基于四原则的 OSS-Fuzz Harness 审计</a>
                     </h2>
                     <p class="post-excerpt">
-                        How our AI-assisted fuzzing system discovered and helped fix critical zero-day vulnerabilities in widely-used open source software -- from CUPS and Apache Avro to Ghidra and OpenLDAP.
+                        在跑 fuzzer 之前,先把 harness 自己审一遍。我们用四原则在 70 个 OSS-Fuzz 项目的 586 个生产 harness 上做了一轮审计,拦下 14 个本会被错报的 FP,提了 53 个修复 PR,顺带挖出一个潜伏 25 年的 OpenSSL 老 bug。
                     </p>
                     <div class="post-highlights">
-                        <span class="highlight-tag">62 Zero-Days</span>
-                        <span class="highlight-tag">26 Projects</span>
-                        <span class="highlight-tag">43 Confirmed</span>
-                        <span class="highlight-tag">36 Patched</span>
+                        <span class="highlight-tag">586 Audited</span>
+                        <span class="highlight-tag">53 Fixes Merged</span>
+                        <span class="highlight-tag">14 FPs Prevented</span>
+                        <span class="highlight-tag">25-Year-Old OpenSSL Bug</span>
                     </div>
-                    <a href="posts/zero-day-vulnerability-discoveries.html" class="post-link">Read Full Post →</a>
+                    <a href="posts/four-principles-harness-audit.html" class="post-link">Read Part 1 →</a>
                 </article>
             </div>
         </section>
@@ -73,6 +73,48 @@
             <div class="section-content">
                 <h2 class="section-title">Recent Posts</h2>
                 <div class="posts-grid">
+                    <article class="post-preview published">
+                        <div class="post-meta">
+                            <span class="post-date">April 30, 2026</span>
+                            <span class="post-category">Vulnerability Discovery</span>
+                        </div>
+                        <h3 class="post-title">
+                            <a href="posts/logic-groups-and-reverse-four-principles.html">把四原则反过来用:Logic Group × 470 个 Fuzzer × 2 周</a>
+                        </h3>
+                        <p class="post-excerpt">
+                            上一篇把四原则当审计准则,这一篇反过来 —— 把它当生成准则。配合 Logic Group 切分,在两周内为 Chromium 及其依赖部署 470 个 fuzzer,提 40+ 个真漏洞,只有 3 个 FP。
+                        </p>
+                        <div class="published-label">Series · Part 2</div>
+                    </article>
+
+                    <article class="post-preview published">
+                        <div class="post-meta">
+                            <span class="post-date">April 30, 2026</span>
+                            <span class="post-category">Verification</span>
+                        </div>
+                        <h3 class="post-title">
+                            <a href="posts/how-we-verify-fuzzer-crashes.html">Crash 之后怎么办:四原则 × 2 步复现 × Security Proxy</a>
+                        </h3>
+                        <p class="post-excerpt">
+                            fuzzer 一晚抛出 24,000 个 crash 里,绝大多数不值得 file。我们用三层闸门把 FP 率压到 &lt;5%,同时保证每个上报都对维护者真正友好。
+                        </p>
+                        <div class="published-label">Series · Part 3</div>
+                    </article>
+
+                    <article class="post-preview published">
+                        <div class="post-meta">
+                            <span class="post-date">February 6, 2026</span>
+                            <span class="post-category">Security Research</span>
+                        </div>
+                        <h3 class="post-title">
+                            <a href="posts/zero-day-vulnerability-discoveries.html">62 Vulnerabilities, 26 Projects, 36 Patches: FuzzingBrain's Open Source Security Campaign</a>
+                        </h3>
+                        <p class="post-excerpt">
+                            How our AI-assisted fuzzing system discovered and helped fix critical zero-day vulnerabilities in widely-used open source software.
+                        </p>
+                        <div class="published-label">Published</div>
+                    </article>
+
                     <article class="post-preview published">
                         <div class="post-meta">
                             <span class="post-date">October 6, 2025</span>
