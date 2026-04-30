@@ -149,19 +149,19 @@
                             </div>
                         </div>
 
-                        <h3>P1 — Logic Correctness:harness 自己的代码不能有 bug</h3>
+                        <h3>P1 — Logic Correctness: no bugs in the harness itself</h3>
                         <p>
-                            这条最朴素也最常被违反。harness 是一段 C/C++ 程序,它和任何 C/C++ 程序一样会出错:
+                            This is the simplest of the four principles and the one most often violated. A harness is a C/C++ program, and it makes the same mistakes any C/C++ program makes.
                         </p>
                         <ul>
-                            <li>变量在使用前没初始化、指针解引用前没判 NULL</li>
-                            <li>所有错误路径都释放了资源 —— 没有 leak、没有 double-free、harness 内部没有 use-after-free</li>
-                            <li>fuzz bytes 真的流到了 library API 的参数里 —— harness 不是 no-op,也没把 fuzz 输入悄悄换成硬编码常量</li>
-                            <li><code>LLVMFuzzerTestOneInput</code> 调用之间没有遗留的 static / global 状态</li>
-                            <li>API 调用里传的 buffer 大小和 harness 里声明的一致</li>
+                            <li>Variables initialized before use, pointers null-checked before deref.</li>
+                            <li>Every error path releases its resources. No leaks, no double-frees, no use-after-free inside the harness.</li>
+                            <li>Fuzz bytes actually reach the library API arguments. The harness is not a no-op, and it does not silently swap the fuzz input for hard-coded constants.</li>
+                            <li>No static or global state leaks across <code>LLVMFuzzerTestOneInput</code> invocations.</li>
+                            <li>The buffer sizes passed to API calls match the buffer sizes declared in the harness.</li>
                         </ul>
                         <p>
-                            <strong>P1 违反 ⇒ 根因是 harness 自身,但 sanitizer trace 不一定停在 harness 里。</strong>最常见的反而是 harness 把错误的状态(超长 buffer、NULL 指针、未初始化的 struct、被 free 过的对象等)传给库,然后<em>是库的代码</em>在 ASan / LSan 下崩 —— trace 看着像是库 bug,实则是 caller 一侧违反协议。这正是 P1 类 FP 最具迷惑性的地方。无论 trace 落在哪一侧,只要 P1 不通过,这个报告就是噪声。
+                            <strong>A P1 violation means the root cause is the harness itself, but the sanitizer trace will not necessarily stop inside the harness.</strong> The more common pattern is the harness pushing bad state into the library. Examples include oversized buffers, NULL pointers, uninitialized structs, and freed objects. The library code is what trips ASan or LSan, the trace looks like a library bug, and the root cause is still the caller violating the contract. That is the most confusing kind of P1 false positive. Wherever the trace lands, if P1 doesn't pass, the report is noise.
                         </p>
 
                         <h3>P2 — API Protocol Compliance:harness 必须遵守库的契约</h3>
