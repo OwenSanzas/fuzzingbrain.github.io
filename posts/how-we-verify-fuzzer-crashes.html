@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="../styles.css">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/line-numbers/prism-line-numbers.min.css">
 </head>
 <body>
     <a href="#main-content" class="skip-to-content">Skip to main content</a>
@@ -188,106 +187,142 @@
                         <p>
                             <strong>不允许我们自己的解读</strong>。如果某条规则我们想加但找不到上游 DOC 来源,这条规则不进 proxy。这种"严格保守 + 必须有引文"的原则是反对错填 proxy 把真 bug 错误地排除掉的护栏。
                         </p>
-                        <pre class="line-numbers"><code class="language-yaml"># security_proxy.yaml — flatbuffers
-# Every assumption below cites an upstream DOC.
-# We never write rationale we can't ground in a maintainer-authored line.
+                        <div class="proxy-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin: var(--spacing-md) 0 var(--spacing-lg); box-shadow: var(--shadow-md);">
 
-library: flatbuffers
-upstream: https://github.com/google/flatbuffers
-proxy_version: 2
-last_reviewed: 2026-04-26
-reviewed_by: o2sec
+                            <!-- Card Header -->
+                            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: var(--spacing-md); padding-bottom: var(--spacing-sm); border-bottom: 1px solid var(--border); margin-bottom: var(--spacing-md); flex-wrap: wrap;">
+                                <div>
+                                    <div style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint); letter-spacing: 0.08em;">SECURITY PROXY</div>
+                                    <div style="font-size: var(--font-size-xl); font-weight: 700; color: var(--text-primary); margin-top: 2px;">flatbuffers</div>
+                                </div>
+                                <div style="text-align: right; font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-muted); line-height: 1.55;">
+                                    <div>v2 · last_reviewed: 2026-04-26</div>
+                                    <div style="color: var(--text-faint);">github.com/google/flatbuffers</div>
+                                </div>
+                            </div>
 
-# ─── What the maintainer treats as in scope vs out of scope ────────────────
-threat_model:
-  summary: |
-    Accessors do not bounds-check. Callers MUST run the Verifier on
-    untrusted bytes before any GetRoot&lt;T&gt; / Get* / operator[] access.
-    Reflection paths assume schemas come from the project itself.
-  source: "DOC:docs/source/CppUsage.md#L120"
+                            <!-- Threat Model -->
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <div style="display: inline-block; font-family: var(--font-mono); font-size: var(--font-size-xs); font-weight: 600; padding: 3px 10px; border-radius: 999px; background: rgba(99, 102, 241, 0.18); color: var(--primary-light); margin-bottom: 8px; letter-spacing: 0.05em;">THREAT MODEL</div>
+                                <p style="color: var(--text-secondary); margin: 0; line-height: 1.55;">Accessors do not bounds-check. Callers MUST run the Verifier on untrusted bytes before any <code>GetRoot&lt;T&gt;</code> / <code>Get*</code> / <code>operator[]</code> access. Reflection paths assume schemas come from the project itself.</p>
+                                <div style="margin-top: 8px; font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint);">↳ DOC:docs/source/CppUsage.md#L120</div>
+                            </div>
 
-# ─── Rule database — each entry is a single, reviewable claim ──────────────
-trust_boundaries:
-  - id: TB-1
-    rule: "Bytes passed to GetRoot&lt;T&gt; without a successful VerifyBuffer call are caller-trusted"
-    in_scope: false
-    source: "DOC:docs/source/CppUsage.md#L120-L142"
-    rationale: |
-      CppUsage.md makes the Verifier the contract gate.
-      Crashes reached without a prior Verify are caller-contract violations.
-    pov_requirement: "PoC must call VerifyBuffer first; otherwise drop."
+                            <!-- Trust Boundaries -->
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <div style="display: inline-block; font-family: var(--font-mono); font-size: var(--font-size-xs); font-weight: 600; padding: 3px 10px; border-radius: 999px; background: rgba(99, 102, 241, 0.18); color: var(--primary-light); margin-bottom: 8px; letter-spacing: 0.05em;">TRUST BOUNDARIES</div>
 
-  - id: TB-2
-    rule: "Schema reflection assumes the .bfbs schema is project-controlled"
-    in_scope: false
-    source: "DOC:include/flatbuffers/reflection.h#L45-L78"
-    rationale: |
-      Reflection helpers are a developer convenience, not an attacker-input
-      surface. Crafted .bfbs reaching them is a build-system compromise,
-      not a flatbuffers vuln.
+                                <div style="display: grid; gap: 8px;">
+                                    <!-- TB-1 OUT -->
+                                    <div style="padding: 10px 14px; background: rgba(239, 68, 68, 0.08); border-left: 3px solid var(--red-500); border-radius: var(--radius-sm);">
+                                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                                            <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--red-400); font-weight: 700;">TB-1</span>
+                                            <span style="font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 8px; background: var(--red-500); color: white; border-radius: 4px; font-weight: 700; letter-spacing: 0.08em;">OUT-OF-SCOPE</span>
+                                        </div>
+                                        <div style="color: var(--text-primary); line-height: 1.5;">Bytes passed to <code>GetRoot&lt;T&gt;</code> without a prior <code>VerifyBuffer</code> are caller-trusted.</div>
+                                        <div style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint); margin-top: 4px;">↳ DOC:docs/source/CppUsage.md#L120-L142</div>
+                                    </div>
 
-  - id: TB-3
-    rule: "Crash on a buffer that PASSED VerifyBuffer is in scope"
-    in_scope: true
-    source: "DOC:docs/source/Tutorial.md#L312"
-    rationale: |
-      If the Verifier returns ok and accessors still crash, the Verifier
-      is incomplete — that's a real bug the maintainer will accept.
+                                    <!-- TB-2 OUT -->
+                                    <div style="padding: 10px 14px; background: rgba(239, 68, 68, 0.08); border-left: 3px solid var(--red-500); border-radius: var(--radius-sm);">
+                                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                                            <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--red-400); font-weight: 700;">TB-2</span>
+                                            <span style="font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 8px; background: var(--red-500); color: white; border-radius: 4px; font-weight: 700; letter-spacing: 0.08em;">OUT-OF-SCOPE</span>
+                                        </div>
+                                        <div style="color: var(--text-primary); line-height: 1.5;">Schema reflection assumes the <code>.bfbs</code> schema is project-controlled, not attacker input.</div>
+                                        <div style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint); margin-top: 4px;">↳ DOC:include/flatbuffers/reflection.h#L45-L78</div>
+                                    </div>
 
-# ─── API scope — what we're allowed to fuzz as 'public attack surface' ─────
-api_scope:
-  in_scope:
-    - "flatbuffers::Verifier::Verify*"
-    - "flatbuffers::GetRoot&lt;T&gt;"          # only after a successful Verify
-    - "flatc CLI input parsing"
-  out_of_scope:
-    - "flatbuffers::reflection::*"          # see TB-2
-    - "test/* harness helpers"
+                                    <!-- TB-3 IN -->
+                                    <div style="padding: 10px 14px; background: rgba(16, 185, 129, 0.08); border-left: 3px solid var(--emerald-500); border-radius: var(--radius-sm);">
+                                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                                            <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--emerald-400); font-weight: 700;">TB-3</span>
+                                            <span style="font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 8px; background: var(--emerald-500); color: white; border-radius: 4px; font-weight: 700; letter-spacing: 0.08em;">IN-SCOPE</span>
+                                        </div>
+                                        <div style="color: var(--text-primary); line-height: 1.5;">Crash on a buffer that <em>passed</em> Verify is a real bug — Verifier is incomplete.</div>
+                                        <div style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint); margin-top: 4px;">↳ DOC:docs/source/Tutorial.md#L312</div>
+                                    </div>
+                                </div>
+                            </div>
 
-# ─── Crash classes the maintainer has historically WontFix'd ───────────────
-crash_class_policy:
-  - class: "OOM on adversarial schema"
-    verdict: WONTFIX
-    source: "DOC:SECURITY.md#L24"
-  - class: "stack-overflow from unbounded recursion in unverified buffer"
-    verdict: WONTFIX
-    source: "DOC:docs/source/CppUsage.md#L155"
+                            <!-- API Scope -->
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <div style="display: inline-block; font-family: var(--font-mono); font-size: var(--font-size-xs); font-weight: 600; padding: 3px 10px; border-radius: 999px; background: rgba(99, 102, 241, 0.18); color: var(--primary-light); margin-bottom: 8px; letter-spacing: 0.05em;">API SCOPE</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div style="padding: 12px; background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-sm);">
+                                        <div style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--emerald-400); font-weight: 700; margin-bottom: 6px; letter-spacing: 0.05em;">✓ IN-SCOPE</div>
+                                        <ul style="margin: 0; padding-left: 18px; color: var(--text-secondary); font-family: var(--font-mono); font-size: var(--font-size-xs); line-height: 1.8;">
+                                            <li><code>Verifier::Verify*</code></li>
+                                            <li><code>GetRoot&lt;T&gt;</code> after Verify</li>
+                                            <li><code>flatc</code> CLI input</li>
+                                        </ul>
+                                    </div>
+                                    <div style="padding: 12px; background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: var(--radius-sm);">
+                                        <div style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--red-400); font-weight: 700; margin-bottom: 6px; letter-spacing: 0.05em;">✗ OUT-OF-SCOPE</div>
+                                        <ul style="margin: 0; padding-left: 18px; color: var(--text-secondary); font-family: var(--font-mono); font-size: var(--font-size-xs); line-height: 1.8;">
+                                            <li><code>reflection::*</code> &nbsp;<span style="color: var(--text-faint);">(TB-2)</span></li>
+                                            <li><code>test/*</code> harness helpers</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
 
-# ─── Real maintainer responses — proxy refines itself from this log ────────
-observed_replies:
-  - issue: "https://github.com/google/flatbuffers/issues/9008"
-    crash_class: "OOB read in operator[]"
-    pov_called_verifier: false
-    verdict: NO_VULNERABILITY
-    quote: "Need to call Verify before access."
-    decided_at: 2026-04-12
-    feeds_into: TB-1            # this reply hardened TB-1
-  - issue: "https://github.com/google/flatbuffers/issues/9041"
-    crash_class: "OOB write in mutable accessor (Verifier passed)"
-    pov_called_verifier: true
-    verdict: ACCEPTED
-    quote: "Verifier missed a bound check — fix incoming."
-    decided_at: 2026-04-19
-    feeds_into: TB-3
+                            <!-- Crash Class Policy -->
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <div style="display: inline-block; font-family: var(--font-mono); font-size: var(--font-size-xs); font-weight: 600; padding: 3px 10px; border-radius: 999px; background: rgba(99, 102, 241, 0.18); color: var(--primary-light); margin-bottom: 8px; letter-spacing: 0.05em;">CRASH-CLASS POLICY</div>
+                                <div style="display: grid; gap: 6px;">
+                                    <div style="display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 8px 14px; background: rgba(0,0,0,0.18); border-radius: var(--radius-sm);">
+                                        <span style="font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 8px; background: var(--slate-700); color: var(--red-400); border-radius: 4px; font-weight: 700;">WONTFIX</span>
+                                        <span style="color: var(--text-secondary);">OOM on adversarial schema</span>
+                                        <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint);">DOC:SECURITY.md#L24</span>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 8px 14px; background: rgba(0,0,0,0.18); border-radius: var(--radius-sm);">
+                                        <span style="font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 8px; background: var(--slate-700); color: var(--red-400); border-radius: 4px; font-weight: 700;">WONTFIX</span>
+                                        <span style="color: var(--text-secondary);">Stack-overflow from unbounded recursion in unverified buffer</span>
+                                        <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint);">DOC:CppUsage.md#L155</span>
+                                    </div>
+                                </div>
+                            </div>
 
-# ─── Hard gate — proxy is not advisory, it gates filing ─────────────────────
-gate:
-  on_match_out_of_scope: drop
-  log_to: "dropped_crashes/&lt;batch_id&gt;.yaml"
-  must_record:
-    - trust_boundary_id        # which rule dropped it
-    - source_doc_line          # where the rule comes from upstream
-    - sanitizer_top_frames     # so we can revisit if proxy is wrong</code></pre>
+                            <!-- Observed Replies -->
+                            <div style="margin-bottom: var(--spacing-md);">
+                                <div style="display: inline-block; font-family: var(--font-mono); font-size: var(--font-size-xs); font-weight: 600; padding: 3px 10px; border-radius: 999px; background: rgba(99, 102, 241, 0.18); color: var(--primary-light); margin-bottom: 8px; letter-spacing: 0.05em;">OBSERVED REPLIES <span style="color: var(--text-faint); font-weight: 400;">— proxy refines from these</span></div>
+                                <div style="display: grid; gap: 8px;">
+                                    <div style="padding: 10px 14px; background: rgba(0,0,0,0.18); border-left: 3px solid var(--red-500); border-radius: var(--radius-sm);">
+                                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;">
+                                            <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-secondary);">#9008</span>
+                                            <span style="font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 8px; background: var(--red-500); color: white; border-radius: 4px; font-weight: 700;">NO_VULNERABILITY</span>
+                                            <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint);">→ feeds_into TB-1</span>
+                                        </div>
+                                        <div style="color: var(--text-secondary); font-style: italic; font-size: var(--font-size-sm);">"Need to call Verify before access."</div>
+                                        <div style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint); margin-top: 4px;">decided 2026-04-12 · pov_called_verifier: false</div>
+                                    </div>
+                                    <div style="padding: 10px 14px; background: rgba(0,0,0,0.18); border-left: 3px solid var(--emerald-500); border-radius: var(--radius-sm);">
+                                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;">
+                                            <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-secondary);">#9041</span>
+                                            <span style="font-family: var(--font-mono); font-size: 0.7rem; padding: 2px 8px; background: var(--emerald-500); color: white; border-radius: 4px; font-weight: 700;">ACCEPTED</span>
+                                            <span style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint);">→ feeds_into TB-3</span>
+                                        </div>
+                                        <div style="color: var(--text-secondary); font-style: italic; font-size: var(--font-size-sm);">"Verifier missed a bound check — fix incoming."</div>
+                                        <div style="font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-faint); margin-top: 4px;">decided 2026-04-19 · pov_called_verifier: true</div>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <p>
-                            这份 YAML 看起来不复杂,但每一块都不可省。读的时候可以盯这四件事:
+                            <!-- Gate -->
+                            <div>
+                                <div style="display: inline-block; font-family: var(--font-mono); font-size: var(--font-size-xs); font-weight: 600; padding: 3px 10px; border-radius: 999px; background: rgba(245, 158, 11, 0.18); color: var(--amber-500); margin-bottom: 8px; letter-spacing: 0.05em;">GATE <span style="color: var(--text-faint); font-weight: 400;">— hard, not advisory</span></div>
+                                <div style="padding: 12px 14px; background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: var(--font-size-xs); color: var(--text-secondary); line-height: 1.7;">
+                                    <div><span style="color: var(--amber-500);">on_match_out_of_scope:</span> <strong style="color: var(--text-primary);">drop</strong> &nbsp;→&nbsp; <span style="color: var(--text-faint);">log to dropped_crashes/&lt;batch_id&gt;.yaml</span></div>
+                                    <div style="margin-top: 4px;"><span style="color: var(--amber-500);">must_record:</span> trust_boundary_id · source_doc_line · sanitizer_top_frames</div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <p style="color: var(--text-muted); font-size: var(--font-size-sm); font-style: italic; margin-top: -8px;">
+                            读这张卡时盯四件事 —— ① 每条规则都挂着 <code>↳ DOC:&lt;file&gt;:&lt;line&gt;</code>(<strong>没 DOC 的条款不进 proxy</strong>);② trust boundaries 同时给 OUT 和 IN 两侧(<em>TB-3 是反向规则</em>,防止 proxy 退化成"什么都 drop"的护身符);③ observed_replies 用 <code>feeds_into</code> 把维护者每次回复反向加固到具体 TB 上,proxy 越用越准;④ gate 是<strong>硬阻断</strong>,不是 advisory。
                         </p>
-                        <ul>
-                            <li><strong>每条规则都有一个 <code>source: DOC:&lt;file&gt;:&lt;line&gt;</code></strong> —— 这是 proxy 唯一的真理来源。没有 DOC 的条款不进 proxy,我们自己的 reasoning 不算数。</li>
-                            <li><strong><code>trust_boundaries</code> 同时写 in-scope 和 out-of-scope 两侧</strong> —— TB-1/TB-2 写"这条 path 的 crash 不报",TB-3 反过来写"这条 path 的 crash 必须报"。两面都要写,proxy 才不会变成"什么都 drop"的护身符。</li>
-                            <li><strong><code>observed_replies</code> 是反馈回路</strong> —— 每条都写明<em>是哪条 trust_boundary 因为这次回复被加固的</em>(<code>feeds_into</code>)。维护者每多回一封,proxy 就更准一分,而不是停在我们自己的解读上。</li>
-                            <li><strong><code>gate</code> 不是 advisory</strong> —— 它不是"建议看一眼",是<em>硬阻断</em>,匹配 out-of-scope 的 crash 直接 drop 并写进 <code>dropped_crashes</code>,记录足够后面回查 proxy 是否填错。</li>
-                        </ul>
 
                         <h3>三个真实例子,看 proxy 怎么救你</h3>
 
@@ -438,7 +473,6 @@ gate:
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/line-numbers/prism-line-numbers.min.js"></script>
     <script src="../script.js"></script>
 </body>
 </html>
