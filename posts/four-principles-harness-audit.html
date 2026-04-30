@@ -113,6 +113,7 @@
                             <li><strong>14 of the 53 would have produced false-positive ASan or LSan crashes if left in place.</strong> The audit caught all 14 before they ever reached upstream.</li>
                             <li><strong>Two latent library bugs surfaced once the broken harnesses were fixed</strong>, including a 25-year-old OpenSSL DES stack-buffer over-read.</li>
                         </ul>
+                        <br>
                         <p>
                             The rest of this post follows that order. First the criteria themselves, then what the audit found in production, then the two latent bugs the audit unmasked.
                         </p>
@@ -160,6 +161,7 @@
                             <li>No static or global state leaks across <code>LLVMFuzzerTestOneInput</code> invocations.</li>
                             <li>The buffer sizes passed to API calls match the buffer sizes declared in the harness.</li>
                         </ul>
+                        <br>
                         <p>
                             <strong>A P1 violation means the root cause is the harness itself, but the sanitizer trace will not necessarily stop inside the harness.</strong> The more common pattern is the harness pushing bad state into the library. Examples include oversized buffers, NULL pointers, uninitialized structs, and freed objects. The library code is what trips ASan or LSan, the trace looks like a library bug, and the root cause is still the caller violating the contract. That is the most confusing kind of P1 false positive. Wherever the trace lands, if P1 doesn't pass, the report is noise.
                         </p>
@@ -187,6 +189,7 @@
                             <li><strong>谨慎使用内部符号</strong>:若 harness 必须用 <code>static</code> / friend / 内部 chunk handler,需要在 PR 里明确说明合理性,并附上"同样行为能在公开侧复现"的证据</li>
                             <li><strong>反例</strong>:直接调 <code>png_handle_IHDR</code> 触发 crash,但任何 PNG 文件都构造不出对应内部状态 —— 这是 P3 失败,因为公开侧无法复现</li>
                         </ul>
+                        <br>
                         <p>
                             <strong>P3 违反 ⇒ 这个 crash 在没人能从公开侧到达的代码路径上。</strong>哪怕真崩了也很难修 —— 上游通常会标 NOT_REPRODUCIBLE_FROM_PUBLIC_API。
                         </p>
@@ -200,6 +203,7 @@
                             <li>入口的可达闭包里必须存在内存安全相关的操作(<code>memcpy</code>、<code>malloc</code>、<code>free</code>、<code>strcpy</code>、<code>sprintf</code> 等),否则即使触发也无害</li>
                             <li>目标本身在库的当前公开攻击面上,不是被 deprecated 的 demo 函数</li>
                         </ul>
+                        <br>
                         <p>
                             <strong>P4 违反 ⇒ 这个 fuzzer 即使一直跑下去也不会找到有用的 bug。</strong>
                         </p>
@@ -253,6 +257,7 @@
                             <li>P3 要判断"这个内部符号的用法是否合理 / 同样 crash 是否能从公开侧复现"</li>
                             <li>P4 要判断"这个入口是不是真实攻击面 / 它在当前版本里是否仍然是公开攻击面"</li>
                         </ul>
+                        <br>
                         <p>
                             这种判断<strong>资深 reviewer 完全可以承担</strong> —— 一个读过库 <code>SECURITY.md</code>、写过类似 fuzzer、了解项目历史的人,凭直觉就能区分"这个内部状态机其实是某公开 API 的等价中间态"和"这个内部符号根本不该被外部触达"。但<strong>对没有项目上下文的第三方通用 LLM 来说不行</strong>:它会因为"看着像内部符号"就拒绝合理用法,或者把 deprecated demo 当成有趣攻击面;它没办法 cite 上游的 SECURITY.md 因为它没读过;它的判断不可问责,因为它每次产出的理由都不一样。
                         </p>
@@ -276,6 +281,7 @@
                             <li>对每个 violation 提交"修好的版本",并跑同样 60s 看覆盖率<strong>不降</strong> —— 给上游一个直接 merge 的理由</li>
                             <li>每个 harness 平均 10 分钟,10 个并发,总成本 ≈ <strong>$720</strong></li>
                         </ul>
+                        <br>
                         <p>
                             然后看结果。
                         </p>
@@ -336,6 +342,7 @@
                             <li><strong>openvpn</strong> — <code>packet_id</code>、<code>verify_cert</code> 都有 P1 违规导致的假 leak</li>
                             <li><strong>wamr / mutator</strong> — P2 协议违反</li>
                         </ul>
+                        <br>
                         <p>
                             这是审计的最大杠杆:<strong>不让 FP 流出去</strong>,就不需要事后再去修复维护者对自动化报告的不信任。
                         </p>
@@ -382,6 +389,7 @@
                             <li><strong>fwupd</strong> 在他们自己的 fuzz 集成里把我们的修复版当作起点,后面又在此基础上写了新的 harness。</li>
                             <li>另两个团队把审计过程里产生的副产品(corpus、structured config)纳入了自己的回归集。</li>
                         </ul>
+                        <br>
                         <p>
                             这是这次工作里最让我们意外的回报 —— 维护者不是把我们的 PR 当作"AI 自动化的低质量噪声"草草接受,而是看到了"高质量审计 + 可执行的修复"之后,主动反向把我们的 artifact 当作工程化资源。
                         </p>
@@ -405,6 +413,7 @@
                             <li><code>tidy-html5/general</code> — <strong>+33.5%</strong></li>
                             <li><code>boost/filesystem</code> — <strong>+21.9%</strong></li>
                         </ul>
+                        <br>
                         <p>
                             大幅度的提升通常对应"原 harness 是 dead code"的极端 case;小幅度通常是 harness 已经在跑、但有一个非阻塞的 P1/P2 违规(比如 jq/parse_stream)。两种都是 harness 质量问题,只是表现不一样。
                         </p>
