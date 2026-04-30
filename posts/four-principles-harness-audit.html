@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harness 也会有 bug:基于四原则的 OSS-Fuzz Harness 审计 - FuzzingBrain</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-to-content">Skip to main content</a>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="../index.html" class="logo-link">
+                        <img src="../assets/images/fuzzbrain.jpg" alt="FuzzingBrain Logo" class="brain-logo">
+                        <h1>FuzzingBrain</h1>
+                    </a>
+                </div>
+                <button class="mobile-menu-btn" aria-label="Toggle navigation menu">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                <nav class="nav" aria-label="Main navigation">
+                    <a href="../documentation.html">Docs</a>
+                    <a href="../quickstart.html">Quickstart</a>
+                    <a href="../blog.html" class="nav-active">Blog</a>
+                    <a href="../index.html#results">Results</a>
+                    <a href="https://github.com/o2lab/afc-crs-all-you-need-is-a-fuzzing-brain" class="nav-cta" target="_blank" rel="noopener noreferrer">GitHub</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Article Header -->
+        <article class="blog-post" id="main-content">
+            <div class="post-header">
+                <div class="section-content">
+                    <nav class="breadcrumb"><a href="../index.html">Home</a><span class="separator">/</span><a href="../blog.html">Blog</a><span class="separator">/</span><span class="current">基于四原则的 Harness 审计</span></nav>
+                    <div class="post-meta">
+                        <span class="post-date">April 30, 2026</span>
+                        <span class="post-category">Methodology</span>
+                        <span class="post-readtime">14 min read</span>
+                    </div>
+                    <h1 class="post-title-main">Harness 也会有 bug:基于四原则的 OSS-Fuzz Harness 审计</h1>
+                    <p class="post-subtitle">在跑 fuzzer 之前,先把 harness 自己审一遍。我们用四原则在 70 个 OSS-Fuzz 项目的 586 个生产 harness 上做了一轮审计,拦下 14 个本会被错报的 FP,提了 53 个修复 PR,顺带挖出一个潜伏 25 年的 OpenSSL 老 bug。</p>
+                </div>
+            </div>
+
+            <!-- Post Content -->
+            <div class="post-content">
+                <div class="section-content">
+
+                    <!-- Hero Stats -->
+                    <section class="results-hero">
+                        <div class="results-banner">
+                            <h2>本次审计的硬指标</h2>
+                            <div class="results-stats">
+                                <div class="result-stat">
+                                    <div class="stat-icon">586</div>
+                                    <div class="stat-value">Harness 审计</div>
+                                    <div class="stat-label">跨 70 个 C/C++ 项目</div>
+                                </div>
+                                <div class="result-stat">
+                                    <div class="stat-icon">53</div>
+                                    <div class="stat-value">质量违规</div>
+                                    <div class="stat-label">提 PR 上游全收</div>
+                                </div>
+                                <div class="result-stat">
+                                    <div class="stat-icon">14</div>
+                                    <div class="stat-value">FP 拦截</div>
+                                    <div class="stat-label">在 harness 阶段就过滤</div>
+                                </div>
+                                <div class="result-stat">
+                                    <div class="stat-icon">2</div>
+                                    <div class="stat-value">真上游 bug</div>
+                                    <div class="stat-label">含 OpenSSL 25 年老洞</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Introduction -->
+                    <section>
+                        <h2>问题:harness 自己往往就是 bug 的来源</h2>
+                        <p>
+                            做 library fuzzing 的人都熟悉这个画面 —— sanitizer 抛出一个看起来非常正经的 stack trace,你顺着栈往下读,在某个深层函数里看到熟悉的 <code>read of size 8 at 0x...</code>,以为又找到一个 use-after-free。结果掏出来重放,核对一下源码,发现 crash 不在库里,而是 harness 里有一行没释放的指针、一个被复用的 static buffer、或者一个调用顺序写反的初始化。
+                        </p>
+                        <p>
+                            这种"<strong>看着像库 bug、实际是 harness bug</strong>"的 false positive 在自动生成 harness 的浪潮里被放大到了离谱的比例 —— 既往工作记录到的 FP 率<strong>高达 94%</strong>。LLM 让 harness 写起来更便宜,也让这个比例更不可控。
+                        </p>
+                        <p>
+                            我们和 50 个 OSS-Fuzz 项目维护者沟通过"是否愿意接受 AI 辅助生成的 harness 和 bug 报告"。<strong>58% 直接没回</strong>;在回应里,排第一的顾虑都不是覆盖率或速度,而是"信任" —— 他们已经被前几代自动化报告里的 FP 噪声反复打扰过,看到再来就只想关闭。
+                        </p>
+                        <p>
+                            所以我们在跑 fuzzer 之前先做了另一件事:<strong>把 harness 自己审一遍</strong>。审一遍的标准就是这篇文章要讲的四原则。
+                        </p>
+                    </section>
+
+                    <!-- Four Principles -->
+                    <section>
+                        <h2>四原则:在源码层定义"正确的 harness"</h2>
+                        <p>
+                            一个 harness 要被接受,必须同时通过四条<strong>源码可检查</strong>的条件 —— 我们称之为四原则(Four Principles, P1–P4)。每条原则对应 LLM(或人)写 harness 时最常见的一类失败模式。
+                        </p>
+
+                        <div class="results-stats" style="margin: 2rem 0;">
+                            <div class="result-stat">
+                                <div class="stat-icon" style="font-size: 2rem;">P1</div>
+                                <div class="stat-value">Logic Correctness</div>
+                                <div class="stat-label">harness 自己代码无 bug</div>
+                            </div>
+                            <div class="result-stat">
+                                <div class="stat-icon" style="font-size: 2rem;">P2</div>
+                                <div class="stat-value">API Protocol Compliance</div>
+                                <div class="stat-label">调用顺序 / 生命周期 / 参数合法</div>
+                            </div>
+                            <div class="result-stat">
+                                <div class="stat-icon" style="font-size: 2rem;">P3</div>
+                                <div class="stat-value">Security Boundary Respect</div>
+                                <div class="stat-label">只走公开 API,不绕入口校验</div>
+                            </div>
+                            <div class="result-stat">
+                                <div class="stat-icon" style="font-size: 2rem;">P4</div>
+                                <div class="stat-value">Entry Point Adequacy</div>
+                                <div class="stat-label">目标在真实攻击面上</div>
+                            </div>
+                        </div>
+
+                        <h3>P1 — Logic Correctness:harness 自己的代码不能有 bug</h3>
+                        <p>
+                            这条最朴素也最常被违反。harness 是一段 C/C++ 程序,它和任何 C/C++ 程序一样会出错:
+                        </p>
+                        <ul>
+                            <li>变量在使用前没初始化、指针解引用前没判 NULL</li>
+                            <li>所有错误路径都释放了资源 —— 没有 leak、没有 double-free、harness 内部没有 use-after-free</li>
+                            <li>fuzz bytes 真的流到了 library API 的参数里 —— harness 不是 no-op,也没把 fuzz 输入悄悄换成硬编码常量</li>
+                            <li><code>LLVMFuzzerTestOneInput</code> 调用之间没有遗留的 static / global 状态</li>
+                            <li>API 调用里传的 buffer 大小和 harness 里声明的一致</li>
+                        </ul>
+                        <p>
+                            <strong>P1 违反 ⇒ 这个 crash 跟库无关,纯粹是 harness 自己崩。</strong>报上去就是噪声。
+                        </p>
+
+                        <h3>P2 — API Protocol Compliance:harness 必须遵守库的契约</h3>
+                        <p>
+                            库的每个 API 都有自己的"使用协议":什么时候 init、什么时候 destroy、参数允许哪些范围、返回值需不需要检查。LLM 生成的 harness 经常违反这些协议,因为它无法从单个函数签名看出整个状态机。
+                        </p>
+                        <ul>
+                            <li>API 按"init → setup → use → destroy"的正确顺序调用</li>
+                            <li>参数类型、宽度、合法值范围与头文件 / 文档一致</li>
+                            <li>库文档明示有意义的返回值要被检查(成功码、NULL on failure)</li>
+                            <li>对象只在 alive 期间使用 —— 不在 free / close / destroy 之后再碰</li>
+                            <li>不调用本版本不存在的 API(注意 C 类依赖里的 header drift)</li>
+                            <li>"transform / set-option" 类调用如果会被后续"identity"调用清空,就不能再用 —— 否则 fuzzer 等于啥都没测(libpng 的 <code>PNG_TRANSFORM_IDENTITY</code> 是经典案例)</li>
+                        </ul>
+                        <p>
+                            <strong>P2 违反 ⇒ 这个 crash 是 API 误用,不是库漏洞。</strong>上游会让你回家。
+                        </p>
+
+                        <h3>P3 — Security Boundary Respect:只能从公开 API 进</h3>
+                        <p>
+                            真实攻击者只能从公开导出的 API 进。harness 如果通过 <code>extern</code> 把 <code>static</code> 声明的内部函数拽出来直接调,或者跳过公开入口的输入校验直接喂内部 chunk handler,产生的 crash 就脱离了真实威胁模型。
+                        </p>
+                        <ul>
+                            <li>只调公开头文件里声明的函数,不通过 friend / extern 拽内部符号</li>
+                            <li>不绕过公开入口的输入校验 —— 校验本身是库交付物的一部分</li>
+                            <li>内部 chunk handler / callback 必须从公开入口"间接"触达,不能直接调用。比如直接调 <code>png_handle_IHDR</code> 就不算 —— 这条路径是任何真实调用者都构造不出的</li>
+                        </ul>
+                        <p>
+                            <strong>P3 违反 ⇒ 这个 crash 在没人能到达的代码路径上。</strong>哪怕真崩了也不修。
+                        </p>
+
+                        <h3>P4 — Entry Point Adequacy:目标必须在真实攻击面上</h3>
+                        <p>
+                            P4 决定的是:你选的这个 fuzz 入口,值不值得被 fuzz?一个把所有 fuzz 字节喂给某个 logging helper 或者 trivial accessor 的 harness 即使 P1–P3 全过,也是浪费 CPU。
+                        </p>
+                        <ul>
+                            <li>入口必须真的能 reach 到目标核心实现 —— 不是被早期 return 掉</li>
+                            <li>入口的可达闭包里必须存在内存安全相关的操作(<code>memcpy</code>、<code>malloc</code>、<code>free</code>、<code>strcpy</code>、<code>sprintf</code> 等),否则即使触发也无害</li>
+                            <li>目标本身在库的当前公开攻击面上,不是被 deprecated 的 demo 函数</li>
+                        </ul>
+                        <p>
+                            <strong>P4 违反 ⇒ 这个 fuzzer 即使一直跑下去也不会找到有用的 bug。</strong>
+                        </p>
+
+                        <h3>为什么是这四条 —— 而不是三条或五条</h3>
+                        <p>
+                            四原则是<strong>层层递进</strong>的:P1 只关心 harness 自身;P2 关心 harness 和库之间的交互;P3 把视野扩大到"哪些路径在真实威胁模型里";P4 回到最现实的问题"这个目标值得测吗"。每加一条,审视的范围就大一层,最后一条覆盖了"是否真的找到了 bug"以外所有可能让 harness 失效的方式。
+                        </p>
+                        <p>
+                            少一条会有缺口 —— 例如砍掉 P3,LLM 生成的 harness 经常会"为了让 fuzzer 更快进入有趣代码"而<em>有意</em>跳过公开入口的校验,这是和真实攻击模型最违和的一种 cheating;砍掉 P4,你就没法解释为什么明明覆盖率涨了上游却不感兴趣。多一条则会让审计成本不再可承受 —— 我们试过加"P5: Reproducibility"和"P6: Coverage Non-Regression",发现都可以归并到 P1/P2 的子检查里,没有新增信息量。
+                        </p>
+                    </section>
+
+                    <!-- Audit Run -->
+                    <section>
+                        <h2>审计:70 个项目 × 586 个 harness</h2>
+                        <p>
+                            理论说完了,真要看四原则有没有用,得拉到生产代码上跑一轮。我们选了 OSS-Fuzz 上 70 个 C/C++ 项目作为审计对象 —— 这些项目的 harness 大多由项目维护者本人或资深贡献者写,经过上游 PR review,在 ClusterFuzz 上跑了好多年,被普遍认为是"高质量基线"。
+                        </p>
+                        <p>
+                            从这 70 个项目里我们抓出了 <strong>586 个生产 harness</strong>。审计流程是:
+                        </p>
+                        <ul>
+                            <li>静态过:LLM agent 直接读 harness 源 + 库头文件,跑过 P1.1–P1.8、P2.1–P2.8 全部 16 个子检查 —— 引用必须落到 <code>file:line</code></li>
+                            <li>动态过:对可疑点构造对抗性输入(adversarial probing),跑 60s libFuzzer + ASan/LSan,看是否真的触发</li>
+                            <li>对每个 violation 提交"修好的版本",并跑同样 60s 看覆盖率<strong>不降</strong> —— 给上游一个直接 merge 的理由</li>
+                            <li>每个 harness 平均 10 分钟,10 个并发,总成本 ≈ <strong>$720</strong></li>
+                        </ul>
+                        <p>
+                            然后看结果。
+                        </p>
+
+                        <h3>53 个 violation,跨 28 个项目</h3>
+                        <p>
+                            我们一共找到 <strong>53 个 P1/P2 violation</strong>,占 586 个 harness 的 9.0%,分布在 28 个项目里。剩下的 42 个项目完全干净 —— 这是个好消息,说明四原则不是"扫所有 harness 都报警"的过度敏感工具,它能在成熟项目上保持沉默。
+                        </p>
+                        <p>
+                            53 个全部以 PR / issue 形式提交给了对应上游。截至发稿:
+                        </p>
+
+                        <div class="results-stats" style="margin: 2rem 0;">
+                            <div class="result-stat">
+                                <div class="stat-icon">53</div>
+                                <div class="stat-value">违规提报</div>
+                                <div class="stat-label">每个都附 fix patch</div>
+                            </div>
+                            <div class="result-stat">
+                                <div class="stat-icon">45</div>
+                                <div class="stat-value">已 confirm</div>
+                                <div class="stat-label">85% 接受率</div>
+                            </div>
+                            <div class="result-stat">
+                                <div class="stat-icon">35</div>
+                                <div class="stat-value">已合并</div>
+                                <div class="stat-label">66% 上线 OSS-Fuzz</div>
+                            </div>
+                            <div class="result-stat">
+                                <div class="stat-icon">4</div>
+                                <div class="stat-value">维护者团队</div>
+                                <div class="stat-label">主动复用我们的 artifact</div>
+                            </div>
+                        </div>
+
+                        <p>
+                            "上游全收"这件事比数字本身更重要 —— 它说明每个 PR 都是<strong>对维护者真正友好</strong>的:不是甩一堆 sanitizer trace 让他们自己去想哪些是噪声,而是把根因 + 修复 + 不降覆盖率的证据一起给到。
+                        </p>
+                    </section>
+
+                    <!-- 14 FPs -->
+                    <section>
+                        <h2>14 个永远不会变成噪声 bug 报告的 FP</h2>
+                        <p>
+                            53 个 violation 里有 <strong>14 个会直接产生 FP 级别的 ASan/LSan crash</strong> —— 也就是说,如果我们绕开审计阶段、直接拿这些 harness 去 fuzz,这 14 个 harness 就会冒出"看似真实"的 crash,被自动化流水线打包成 14 份 bug report 砸到上游。
+                        </p>
+                        <p>
+                            这 14 份报告里没有一个是真 bug。它们的根因都在 harness 里 —— 一个 dict 没 free、一个对象生命周期错位、一个内部 chunk 解析直接被驱动。每一份都会让维护者花时间读 stack trace、构建 repro 环境、对照源码、最后失望地 close 为 NO_VULNERABILITY,顺便给我们的提交账号留下"质量低"的印象。
+                        </p>
+                        <p>
+                            <strong>四原则把这 14 个全部拦在了 fuzz 阶段之前。</strong>它们不是"跑出来再被 verify 排除",而是连跑都没跑就被静态识别 + 修复 + 提 PR 的方式消化掉。涉及的项目包括:
+                        </p>
+                        <ul>
+                            <li><strong>lcms</strong> — <code>dict</code> 和 <code>transform_ext</code> 两个 harness 都有 P2 违规导致的 FP crash;修完以后干净</li>
+                            <li><strong>libarchive / linkify</strong> — P1 资源生命周期问题</li>
+                            <li><strong>libpng / readapi</strong> — P2 调用顺序错位</li>
+                            <li><strong>njs / script</strong> — P1 静态状态没重置</li>
+                            <li><strong>openvpn</strong> — <code>packet_id</code>、<code>verify_cert</code> 都有 P1 违规导致的假 leak</li>
+                            <li><strong>wamr / mutator</strong> — P2 协议违反</li>
+                        </ul>
+                        <p>
+                            这是审计的最大杠杆:<strong>不让 FP 流出去</strong>,就不需要事后再去修复维护者对自动化报告的不信任。
+                        </p>
+                    </section>
+
+                    <!-- 2 incidental real bugs -->
+                    <section>
+                        <h2>意外战利品:两个被 harness 遮住的真上游 bug</h2>
+                        <p>
+                            做这种审计有个有意思的副作用 —— 修一个 P2 违规,有时会<strong>把库本来就有、但被错误的 harness 长期遮住的 bug</strong>暴露出来。这次审计里出了两个这样的案例。
+                        </p>
+
+                        <h3>案例 1:OpenSSL DES 栈缓冲读越界 —— 潜伏 25+ 年</h3>
+                        <p>
+                            OpenSSL 的 <code>provider</code> harness 在调用顺序上有一个微妙的错误:它把 <code>EVP_CIPHER_CTX_set_params</code> 放在了 <code>EVP_EncryptInit_ex2</code> 之前。这违反了 P2 —— 在 context 还没初始化的时候 set params 会直接 return 0,等于这条 cipher 路径永远是 dead code。
+                        </p>
+                        <p>
+                            修好这个调用顺序之后,harness 的覆盖率立刻多了 <strong>+51.4% edges</strong>,fuzzer 跑了几秒就抛出了 <code>DES_ede3_ofb64_encrypt</code> 里的 stack-buffer-overread。根因是 <code>num</code> 参数没有上界检查,可以从 EVP API 设到 ≥8,使第一轮循环就读到栈本地 <code>DES_cblock d[8]</code> 之外。
+                        </p>
+                        <p>
+                            这个 bug 的本体在 <code>crypto/des/ofb64ede.c</code> 里趟了 <strong>25 年以上</strong> —— 是 OpenSSL 项目本身比 OpenSSL 这个名字还要老的代码。它没被发现的原因不是难找,而是<strong>过去所有走到这条路径的 harness 都因为 P2 错误根本没真正进到这个函数</strong>。一个调用顺序错误,把一个公开 API 的内存安全 bug 隐藏了 1/4 个世纪。
+                        </p>
+                        <p>
+                            上游已经合并了我们的修复,issue 也关闭了。
+                        </p>
+
+                        <h3>案例 2:tidy-html5 内存泄漏 —— 缺一次 cleanup 调用</h3>
+                        <p>
+                            tidy-html5 的某个 harness 漏掉了一次必要的 cleanup 调用,违反 P2 的"paired API"约束。补上这一次调用之后,harness 立刻在原本被 cleanup 掩盖的路径上抛出 <code>LeakSanitizer</code> 警告 —— 是库内部 lexer 里的真 leak。
+                        </p>
+                        <p>
+                            根因和上面那条 OpenSSL 完全是一类:<strong>错误的 harness 用法把库的真实行为掩盖了</strong>。你可以把这两个看作"P2-driven bug discovery"的代表 —— 修 harness 不只是把 FP 干掉,更是在把库的真实行为重新暴露给 sanitizer。
+                        </p>
+                    </section>
+
+                    <!-- Maintainer adoption -->
+                    <section>
+                        <h2>维护者反馈:不止是合并 PR</h2>
+                        <p>
+                            这次审计的结尾不是 35 个 PR 合进 OSS-Fuzz 然后散场。<strong>有 4 个维护者团队进一步把我们的 harness 或衍生 artifact 集成进了他们自己的工程化流程</strong>:
+                        </p>
+                        <ul>
+                            <li><strong>OpenSSL</strong> 直接采纳了我们对 <code>quic_server</code> harness 的重写版本(P1+P2 双修复),分支覆盖率提到 2.64×。这个版本现在跑在 OSS-Fuzz 的 OpenSSL 任务里。</li>
+                            <li><strong>fwupd</strong> 在他们自己的 fuzz 集成里把我们的修复版当作起点,后面又在此基础上写了新的 harness。</li>
+                            <li>另两个团队把审计过程里产生的副产品(corpus、structured config)纳入了自己的回归集。</li>
+                        </ul>
+                        <p>
+                            这是这次工作里最让我们意外的回报 —— 维护者不是把我们的 PR 当作"AI 自动化的低质量噪声"草草接受,而是看到了"高质量审计 + 可执行的修复"之后,主动反向把我们的 artifact 当作工程化资源。
+                        </p>
+                        <p>
+                            维护者的反馈直接验证了开篇那个 58% 不回的猜测:他们不是反对自动化,他们是反对<strong>没经过质量把关</strong>的自动化。
+                        </p>
+                    </section>
+
+                    <!-- Coverage gain illustration -->
+                    <section>
+                        <h2>顺带:覆盖率的提升不是目标,但很可观</h2>
+                        <p>
+                            必须澄清一件事:四原则审计的目的<strong>不是涨覆盖率</strong>,目的是修正 harness 的正确性。但在很多 case 里,修一个 P1/P2 违规会顺便把死代码激活,覆盖率会跟着涨上去。我们把这当成 PR 通过的"无害证据"附在每个修复里。一些代表性的数字:
+                        </p>
+                        <ul>
+                            <li><code>opencv/filestorage</code> — <strong>+986%</strong> edges(原 harness 几乎是死代码)</li>
+                            <li><code>libyaml/emitter</code> — <strong>14×</strong> edges</li>
+                            <li><code>openssl/quic_server</code> — <strong>+65.7%</strong></li>
+                            <li><code>bzip2/bzip2_fd</code> — <strong>+52.4%</strong></li>
+                            <li><code>openssl/provider</code> — <strong>+51.4%</strong>(就是上面那个 25 年老 bug 的现场)</li>
+                            <li><code>tidy-html5/general</code> — <strong>+33.5%</strong></li>
+                            <li><code>boost/filesystem</code> — <strong>+21.9%</strong></li>
+                        </ul>
+                        <p>
+                            大幅度的提升通常对应"原 harness 是 dead code"的极端 case;小幅度通常是 harness 已经在跑、但有一个非阻塞的 P1/P2 违规(比如 jq/parse_stream)。两种都是 harness 质量问题,只是表现不一样。
+                        </p>
+                    </section>
+
+                    <!-- Why this matters -->
+                    <section>
+                        <h2>为什么这件事在 LLM 时代更重要</h2>
+                        <p>
+                            手写 harness 的时代,质量问题靠人审 PR 拦掉;LLM 时代,harness 可以一夜之间生成几百个,如果不预设静态质量门槛,自动化就把"speed"翻译成了"FP 流量"。
+                        </p>
+                        <p>
+                            四原则不是"LLM-only"的工具 —— 它是<strong>源码层的 harness 正确性定义</strong>,既适用于人写的 harness 审计(就是这篇里 586 个的来源),也适用于 LLM 生成 harness 时的自检。我们在生成阶段也用同一套四原则,只是反过来用 —— 那是下一篇的内容。
+                        </p>
+                        <p>
+                            如果你现在在做 LLM-driven fuzz harness generation,我们建议:
+                        </p>
+                        <ol>
+                            <li>不要把 build 通过和 fuzz 60s 没崩当作"quality good";这两个信号都是必要不充分。</li>
+                            <li>在生成完 harness 之后强制跑 P1.1–P1.8、P2.1–P2.8 的子检查,违规的让 LLM 重写,而不是放进 fuzz queue。</li>
+                            <li>P3、P4 在生成<em>之前</em>用,选目标的时候就过一遍;选错了再写代码是浪费。</li>
+                            <li>给上游的每个 PR 必须附 root-cause + 修复 + 覆盖率不降的证据,不能只甩 sanitizer trace。</li>
+                        </ol>
+                        <p>
+                            这套流程的成本是有限的:586 个 harness 平均每个 10 分钟、10 并发,总开销大约 $720。换来的是 14 个永远不会成为噪声报告的 FP、35 个被上游接受的修复、和一个潜伏 25 年的真上游 bug。这笔账无论从工程化成本还是 ecosystem trust 角度都是正的。
+                        </p>
+                    </section>
+
+                    <!-- What's Next -->
+                    <section class="future-section">
+                        <h2>下一篇:把四原则反过来用</h2>
+                        <p>
+                            这篇讲的是用四原则做<strong>审计</strong> —— 接住已有 harness、找出问题、提修复 PR。下一篇我们讲反过来的方向:用四原则做<strong>生成</strong> —— 给定一个新库,从 P4(选攻击面)开始往回走 P3 → P2 → P1,加上 Logic Group 的语义切分,在两周内部署 470 个 fuzzer,找到 40+ 个真漏洞,只有 3 个 FP。
+                        </p>
+                        <div class="next-steps">
+                            <div class="next-step">
+                                <h4>Blog 2 — 把四原则反过来用</h4>
+                                <p>Logic Group + reverse 4 原则:在 Chromium / Google vendor 链路上跑出 470 个 fuzzer 的工程化流水线。</p>
+                            </div>
+                            <div class="next-step">
+                                <h4>Blog 3 — Crash 之后怎么办</h4>
+                                <p>Verify 流程:四原则再审一遍 + 2 步复现 + Security Proxy 跟维护者 threat model 对齐。</p>
+                            </div>
+                            <div class="next-step">
+                                <h4>OpenSSF working group</h4>
+                                <p>欢迎和我们就 LLM-generated harness 质量保障一起讨论 —— 我们最担心的不是 FP 灌水,而是真 bug 被维护者一并 auto-close。</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- CTA -->
+                    <section class="cta-section">
+                        <div class="cta-content">
+                            <h2>看看我们的工作</h2>
+                            <p>四原则的细节和审计 dataset 我们已经公开,可以直接复用。</p>
+                            <div class="cta-buttons">
+                                <a href="https://github.com/o2lab/afc-crs-all-you-need-is-a-fuzzing-brain" class="btn btn-primary">
+                                    <span>View on GitHub</span>
+                                </a>
+                                <a href="https://fuzzingbrain.github.io/FuzzingBrain-Leaderboard/" class="btn btn-secondary">
+                                    <span>FuzzingBrain Leaderboard</span>
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+
+                    <p style="text-align: right; margin-top: 3rem; color: #888; font-style: italic;">
+                        — Ze Sheng, O2 Security Team (TAMU)
+                    </p>
+
+                </div>
+            </div>
+        </article>
+
+        <!-- Footer -->
+        <nav class="post-navigation">
+            <a href="logic-groups-and-reverse-four-principles.html" class="post-nav-link next"><span class="nav-label">Next</span><span class="nav-title">把四原则反过来用 →</span></a>
+        </nav>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-text">
+                    <p>&copy; 2026 All You Need Is A Fuzzing Brain Research Team</p>
+                    <p>Advancing autonomous vulnerability discovery through AI</p>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/fuzzingbrain"><img src="../assets/images/fuzzbrain.jpg" alt="GitHub" class="footer-logo"> GitHub</a>
+                    <a href="https://aicyberchallenge.com/">DARPA AIxCC</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="../script.js"></script>
+</body>
+</html>
