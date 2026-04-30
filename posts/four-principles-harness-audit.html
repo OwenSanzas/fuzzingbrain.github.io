@@ -221,7 +221,7 @@
                         </ul>
 
                         <p>
-                            实际跑的时候,每条子检查都对应一个或一组探针 —— 有些是 LLM 读源码 + cite <code>file:line</code>,有些是 GDB 在目标 API 下断点看是否命中,有些是 ASan / LSan 在对抗输入下抛出 sanitizer trace。具体每条用什么探针、对应什么 fault oracle,在论文 Table 8 里有完整的对照表。三个 stage 的不同主要在于<em>探针的输入</em>:审计阶段用真实生产语料,生成阶段用 adversarial prober 主动构造,verify 阶段用具体的 crash input 重放。规则本身是同一套,所以判定才是稳定的。
+                            每条子检查具体怎么落地 —— 哪些用 LLM 读源码 + cite <code>file:line</code>、哪些用 GDB 在目标 API 下断点、哪些用 ASan / LSan 抓 sanitizer trace,以及三个 stage 之间探针输入的差异 —— 我们放到<a href="logic-groups-and-reverse-four-principles.html">下一篇</a>讲反向流水线时一起展开。这一节先把准则本身列清楚就好。
                         </p>
 
                         <h3>为什么是这四条 —— 而不是三条或五条</h3>
