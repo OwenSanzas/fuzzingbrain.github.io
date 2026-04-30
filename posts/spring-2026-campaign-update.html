@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spring 2026 Campaign Update: 103 Zero-Days, 56 Projects, Three Methodology Posts - FuzzingBrain</title>
+    <title>Spring 2026 Campaign Update: 41 New Zero-Days Across 24 New Projects, Plus a Three-Post Methodology Series - FuzzingBrain</title>
     <link rel="stylesheet" href="../styles.css">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
@@ -11,7 +11,6 @@
 <body>
     <a href="#main-content" class="skip-to-content">Skip to main content</a>
     <div class="container">
-        <!-- Header -->
         <header class="header">
             <div class="header-content">
                 <div class="logo">
@@ -35,7 +34,6 @@
             </div>
         </header>
 
-        <!-- Article Header -->
         <article class="blog-post" id="main-content">
             <div class="post-header">
                 <div class="section-content">
@@ -43,21 +41,20 @@
                     <div class="post-meta">
                         <span class="post-date">April 30, 2026</span>
                         <span class="post-category">Campaign Update</span>
-                        <span class="post-readtime">6 min read</span>
+                        <span class="post-readtime">8 min read</span>
                     </div>
-                    <h1 class="post-title-main">Spring 2026 Campaign Update: 103 Zero-Days, 56 Projects, Three Methodology Posts</h1>
-                    <p class="post-subtitle">A short stage report. We are proud to announce the latest numbers from our open-source security campaign. <strong>103 vulnerabilities filed upstream across 56 open-source projects, 70 of them already acknowledged by maintainers (58 patched plus 12 confirmed).</strong> Most of this period went into harness quality. We are publishing three methodology posts alongside this update that explain, in order, how we did it.</p>
+                    <h1 class="post-title-main">Spring 2026 Campaign Update: 41 New Zero-Days Across 24 New Projects, and a Methodology Series</h1>
+                    <p class="post-subtitle">Different from <a href="zero-day-vulnerability-discoveries.html">last time</a>. The previous campaign update reported 62 vulnerabilities across 26 projects, mostly through auditing existing OSS-Fuzz harnesses on general open-source software. This update is about <strong>generating new harnesses for harder targets</strong>. Since February we have added <strong>41 new vulnerabilities across 24 brand-new projects</strong>, most of them in the Chromium dependency graph or in security-critical libraries we had not touched before. We are also publishing three methodology posts alongside this update that document, in order, exactly how the new harnesses get built and how the false-positive rate stays under 5%.</p>
                 </div>
             </div>
 
-            <!-- Post Content -->
             <div class="post-content">
                 <div class="section-content">
 
-                    <!-- Hero Stats -->
+                    <!-- Hero Stats: all-time -->
                     <section class="results-hero">
                         <div class="results-banner">
-                            <h2>Headline Numbers</h2>
+                            <h2>All-Time Numbers</h2>
                             <div class="results-stats">
                                 <div class="result-stat">
                                     <div class="stat-icon">103</div>
@@ -78,89 +75,442 @@
                         </div>
                     </section>
 
-                    <!-- What we did in this period -->
+                    <!-- What's New -->
                     <section>
-                        <h2>This Period: We Spent It on the Harness Layer</h2>
+                        <h2>What Changed Since the Last Campaign</h2>
                         <p>
-                            Stepping back, the question that drove this campaign was simple. If you want an LLM to find real bugs in mainstream open-source code, the bottleneck is rarely the LLM. The bottleneck is the harness, the small program that bridges fuzz bytes and library APIs. A bad harness produces convincing-looking false-positive crashes, drowns the maintainer in noise, and trains the ecosystem to mistrust automated reports. A good harness narrows the LLM's freedom to fail in ways that matter and points the fuzzer at the code paths that actually exist on a real attack surface.
+                            <a href="zero-day-vulnerability-discoveries.html">Our previous update</a>, in February, reported <strong>62 vulnerabilities across 26 projects</strong>. Most of those came from auditing existing OSS-Fuzz harnesses across the general open-source ecosystem. The work done since has been deliberately different. The focus shifted to <strong>generating new harnesses</strong> for projects that did not have good fuzz coverage to begin with, and the target list moved one tier deeper into security-critical software.
                         </p>
                         <p>
-                            So we spent this period on harness quality. Three methodology posts, all published today, document what we did in the order we did it. The cards below link to each one.
+                            The numbers reflect that pivot.
                         </p>
-                    </section>
 
-                    <!-- Step 1: Blog 1 -->
-                    <section>
-                        <h2>Step 1. Define a "Correct Harness", Then Audit Existing Ones</h2>
-                        <p>
-                            Before we could generate good harnesses, we needed a checkable definition of "good". We propose the <strong>Four Principles</strong> (P1 Logic Correctness, P2 API Protocol Compliance, P3 Security Boundary Respect, P4 Entry Point Adequacy) as a source-level checklist, expanded into 16 mechanizable sub-checks. Then we validated the criteria by auditing 586 production OSS-Fuzz harnesses across 70 projects, treating them as if they were a first-round LLM output and seeing whether the principles flag the actual problems maintainers care about. They did. 53 fix PRs filed, 45 verified or merged by maintainers, 14 false-positive crash reports caught at audit before they could reach upstream, and two real upstream library bugs surfaced when broken harnesses were repaired (including a stack-buffer over-read that had been latent in OpenSSL DES for 25 years).
-                        </p>
-                        <article class="post-preview published" style="margin: 1.5rem 0;">
-                            <div class="post-meta">
-                                <span class="post-date">April 30, 2026</span>
-                                <span class="post-category">Methodology · Part 1</span>
+                        <div class="performance-stats">
+                            <div class="stat-box">
+                                <div class="stat-number">+41</div>
+                                <div class="stat-label">New Vulnerabilities</div>
+                                <div class="stat-detail">Filed upstream since February</div>
                             </div>
-                            <h3 class="post-title">
-                                <a href="four-principles-harness-audit.html">Harnesses Have Bugs Too: A Four-Principles Audit of 586 OSS-Fuzz Harnesses</a>
-                            </h3>
-                            <p class="post-excerpt">
-                                Before generating "good" fuzz harnesses, we need a checkable definition of "good". This post offers the Four Principles, then validates them by auditing 586 production OSS-Fuzz harnesses across 70 projects. 53 fix PRs filed, 45 verified or merged, 14 false positives caught at audit, two real upstream bugs surfaced when broken harnesses were repaired.
-                            </p>
-                            <div class="published-label">Read Part 1 →</div>
-                        </article>
-                    </section>
-
-                    <!-- Step 2: Blog 2 -->
-                    <section>
-                        <h2>Step 2. Point the Same Principles at Google Chromium</h2>
-                        <p>
-                            With the criteria validated as an audit tool, we flipped the direction and applied them to <em>generating</em> harnesses for one of the most security-critical pieces of software in deployment: <strong>Google Chromium and its vendor stack</strong>. The reverse pipeline starts at P4 (which attack surface is worth fuzzing), then P3 (does it sit on a public boundary), then P2 (the API protocol), and only at the end runs P1 (write the code). Logic Group does the semantic-unit slicing per library. In two weeks we generated 472 harnesses across 58 Chromium-stack libraries (libvpx, libwebp, libaom, openscreen, dawn, pdfium, sqlite, v8, and friends), and filed 30 vulnerabilities upstream so far.
-                        </p>
-                        <article class="post-preview published" style="margin: 1.5rem 0;">
-                            <div class="post-meta">
-                                <span class="post-date">April 30, 2026</span>
-                                <span class="post-category">Methodology · Part 2</span>
+                            <div class="stat-box">
+                                <div class="stat-number">+24</div>
+                                <div class="stat-label">New Projects</div>
+                                <div class="stat-detail">Not present in the previous campaign</div>
                             </div>
-                            <h3 class="post-title">
-                                <a href="logic-groups-and-reverse-four-principles.html">Two Weeks Inside Chromium: 472 Harnesses, 30 Vulnerabilities Filed Upstream</a>
-                            </h3>
-                            <p class="post-excerpt">
-                                Point the four principles at Google Chromium and its vendor stack. Flip the principles into a generation criterion, pair with Logic Group as the semantic-unit slicer, every harness goes through Stage-4 adversarial probing. Two weeks: 472 harnesses, 30 vulnerabilities filed upstream, and 52 candidates dropped before any could reach a maintainer.
-                            </p>
-                            <div class="published-label">Read Part 2 →</div>
-                        </article>
-                    </section>
-
-                    <!-- Step 3: Blog 3 -->
-                    <section>
-                        <h2>Step 3. Filing Quality, Not Just Filing Count</h2>
-                        <p>
-                            Volume is only useful if quality holds. We are equally proud of the third number, <strong>under 5% FP across everything we file</strong>. The third post documents how we drop FP candidates before they reach upstream. Three gates: re-run the four principles on the specific crash trace, reproduce the crash twice independently (once through the harness, once through a public-API path), then align the result with a per-library <strong>Security Proxy</strong> that encodes the maintainer's documented threat model. We also keep a record of the candidates we did <em>not</em> file and why.
-                        </p>
-                        <article class="post-preview published" style="margin: 1.5rem 0;">
-                            <div class="post-meta">
-                                <span class="post-date">April 30, 2026</span>
-                                <span class="post-category">Methodology · Part 3</span>
+                            <div class="stat-box">
+                                <div class="stat-number">59%</div>
+                                <div class="stat-label">Acknowledged</div>
+                                <div class="stat-detail">24 of 41 acked (15 fixed + 9 confirmed)</div>
                             </div>
-                            <h3 class="post-title">
-                                <a href="how-we-verify-fuzzer-crashes.html">How We Verify Fuzzer Crashes: Four Principles, Two Reproductions, and Security Proxies</a>
-                            </h3>
-                            <p class="post-excerpt">
-                                A fuzzer can produce 24,000 crashes overnight and almost none deserve to be filed. We hold every candidate behind three gates: a four-principles re-audit on the crash path, two independent reproductions, and per-library Security Proxies aligned with the maintainer's threat model. Together they keep our false-positive rate under 5% and keep every report genuinely useful.
-                            </p>
-                            <div class="published-label">Read Part 3 →</div>
-                        </article>
+                            <div class="stat-box">
+                                <div class="stat-number">472</div>
+                                <div class="stat-label">Harnesses Generated</div>
+                                <div class="stat-detail">In two weeks across the Chrome stack</div>
+                            </div>
+                        </div>
                     </section>
 
-                    <!-- What's next -->
+                    <!-- Methodology Series -->
+                    <section>
+                        <h2>Three Milestones, Three Methodology Posts</h2>
+                        <p>
+                            The pivot above came out of three connected milestones. First we needed a checkable definition of what makes a harness "good". Then we used that definition to generate new harnesses and find new bugs, with Chromium as the showcase target. Finally we put each candidate crash through a verify pipeline so the FP rate stays low. Each milestone gets its own post; the cards below link straight through.
+                        </p>
+
+                        <div class="next-steps">
+                            <a href="four-principles-harness-audit.html" class="next-step" style="display: block; color: inherit; text-decoration: none; cursor: pointer;">
+                                <h4>Milestone 1 · Define what a "good" harness is</h4>
+                                <p style="margin: 0.5rem 0;"><strong>Harnesses Have Bugs Too: A Four-Principles Audit of 586 OSS-Fuzz Harnesses</strong></p>
+                                <p>The Four Principles checklist (P1 Logic Correctness, P2 API Protocol Compliance, P3 Security Boundary Respect, P4 Entry Point Adequacy), validated by auditing 586 production OSS-Fuzz harnesses. 53 fix PRs filed, 45 verified or merged. 14 false positives caught at audit. Two upstream library bugs unmasked when broken harnesses were repaired (including a 25-year-old OpenSSL DES over-read).</p>
+                                <p style="color: #6366f1; margin-top: 0.5rem;">Read Milestone 1 →</p>
+                            </a>
+                            <a href="logic-groups-and-reverse-four-principles.html" class="next-step" style="display: block; color: inherit; text-decoration: none; cursor: pointer;">
+                                <h4>Milestone 2 · Generate good harnesses on Chromium and find new bugs</h4>
+                                <p style="margin: 0.5rem 0;"><strong>Two Weeks Inside Chromium: 472 Harnesses, 30 Vulnerabilities Filed Upstream</strong></p>
+                                <p>The four principles flipped into a generation criterion (P4 → P1) and combined with Logic Group as a semantic-unit slicer. 472 harnesses generated across 58 Chromium-stack libraries (libvpx, libwebp, libaom, openscreen, dawn, pdfium, sqlite, v8 …). 30 vulnerabilities filed upstream. 52 candidates dropped at the verify gate.</p>
+                                <p style="color: #6366f1; margin-top: 0.5rem;">Read Milestone 2 →</p>
+                            </a>
+                            <a href="how-we-verify-fuzzer-crashes.html" class="next-step" style="display: block; color: inherit; text-decoration: none; cursor: pointer;">
+                                <h4>Milestone 3 · Verify each crash before we file it</h4>
+                                <p style="margin: 0.5rem 0;"><strong>How We Verify Fuzzer Crashes: Four Principles, Two Reproductions, and Security Proxies</strong></p>
+                                <p>The verify pipeline that keeps live FP under 5%. Three gates: re-run the four principles on the specific crash trace, two independent reproductions (harness replay plus public-API repro), and per-library Security Proxies that encode the maintainer's documented threat model.</p>
+                                <p style="color: #6366f1; margin-top: 0.5rem;">Read Milestone 3 →</p>
+                            </a>
+                        </div>
+                    </section>
+
+                    <!-- Severity of NEW 41 -->
+                    <section>
+                        <h2>Severity of the New 41</h2>
+                        <p>
+                            Roughly half of the new findings are High severity. Memory-corruption bugs (heap overflow, UAF, OOB) dominate, with denial-of-service and unbounded-allocation issues making up most of the rest. No Critical for this batch, two Low.
+                        </p>
+                        <div class="severity-bar">
+                            <div class="seg-high" style="width: 49%;" title="High: 20"></div>
+                            <div class="seg-medium" style="width: 46%;" title="Medium: 19"></div>
+                            <div class="seg-low" style="width: 5%;" title="Low: 2"></div>
+                        </div>
+                        <div class="severity-legend">
+                            <div class="legend-item"><div class="legend-dot" style="background: #f59e0b;"></div> High: 20 (49%)</div>
+                            <div class="legend-item"><div class="legend-dot" style="background: #6366f1;"></div> Medium: 19 (46%)</div>
+                            <div class="legend-item"><div class="legend-dot" style="background: #94a3b8;"></div> Low: 2 (5%)</div>
+                        </div>
+                    </section>
+
+                    <!-- Vulnerability Types -->
+                    <section>
+                        <h2>What We Found: Bug Classes</h2>
+                        <p>
+                            The new wave skews toward memory-safety classes typical of modern multimedia, parsing, and serialization code. Heap buffer overflow leads, followed by denial-of-service in JSON and HTTP/3 parsers, and a cluster of allocation-related bugs in deserializers.
+                        </p>
+                        <div class="type-grid">
+                            <div class="type-item"><span class="type-name">Heap Buffer Overflow</span><span class="type-count">9</span></div>
+                            <div class="type-item"><span class="type-name">Denial-of-Service</span><span class="type-count">4</span></div>
+                            <div class="type-item"><span class="type-name">Memory Leak</span><span class="type-count">3</span></div>
+                            <div class="type-item"><span class="type-name">Use-After-Free</span><span class="type-count">2</span></div>
+                            <div class="type-item"><span class="type-name">Heap Use-After-Free</span><span class="type-count">2</span></div>
+                            <div class="type-item"><span class="type-name">NULL Pointer Deref</span><span class="type-count">2</span></div>
+                            <div class="type-item"><span class="type-name">Unbounded Allocation</span><span class="type-count">2</span></div>
+                            <div class="type-item"><span class="type-name">Uncontrolled Allocation</span><span class="type-count">2</span></div>
+                            <div class="type-item"><span class="type-name">Assertion Failure</span><span class="type-count">2</span></div>
+                            <div class="type-item"><span class="type-name">Integer Overflow</span><span class="type-count">2</span></div>
+                            <div class="type-item"><span class="type-name">Stack Overflow</span><span class="type-count">1</span></div>
+                            <div class="type-item"><span class="type-name">Double-Free</span><span class="type-count">1</span></div>
+                            <div class="type-item"><span class="type-name">Other (parser / OOB / FPE)</span><span class="type-count">9</span></div>
+                        </div>
+                    </section>
+
+                    <!-- Project Highlights for the new wave -->
+                    <section>
+                        <h2>Where the New Findings Landed</h2>
+                        <p>
+                            Almost all of the 24 new projects sit in the Chromium dependency graph or in security-critical libraries with wide deployment footprints. Below are the ones with multiple findings or a notable confirmed/fixed first-time hit. Single-finding new projects appear in the table after.
+                        </p>
+
+                        <div class="project-cards">
+                            <!-- Chromium -->
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3>Chromium &amp; Google Vendor Stack</h3>
+                                    <span class="fix-rate fix-rate-100">Multiple confirmed</span>
+                                </div>
+                                <ul>
+                                    <li>NULL Pointer Deref in <code>WebPMuxAssemble</code> (libwebp) — <a href="https://issues.webmproject.org/issues/497882857" class="vuln-link">webmproject#497882857</a> (fixed)</li>
+                                    <li>Integer Overflow / Assertion in VP9 encoder — <a href="https://issues.webmproject.org/issues/497896136" class="vuln-link">webmproject#497896136</a> (confirmed)</li>
+                                    <li>Integer Overflow in Y4M Buffer Size Calc — <a href="https://issues.webmproject.org/issues/501135996" class="vuln-link">webmproject#501135996</a></li>
+                                    <li>OOB Read in <code>SharpYuvConvert</code> — <a href="https://issues.webmproject.org/issues/501147575" class="vuln-link">webmproject#501147575</a></li>
+                                    <li>Uncontrolled OOM in PDFium XObject — <a href="https://issues.chromium.org/issues/497514412" class="vuln-link">chromium#497514412</a> (confirmed)</li>
+                                    <li>Double-Free in FlatBuffers Parser — <a href="https://github.com/google/flatbuffers/issues/9009" class="vuln-link">flatbuffers#9009</a> (confirmed)</li>
+                                    <li>Heap Overflow in FlexBuffers ToString — <a href="https://github.com/google/flatbuffers/issues/9008" class="vuln-link">flatbuffers#9008</a> (confirmed)</li>
+                                </ul>
+                            </div>
+
+                            <!-- libaom -->
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3>libaom (AV1)</h3>
+                                    <span class="fix-rate fix-rate-100">3/3 acked</span>
+                                </div>
+                                <ul>
+                                    <li>Heap Overflow in <code>av1_restore_layer_context</code> — <a href="https://issues.chromium.org/issues/501657371" class="vuln-link">chromium#501657371</a> (fixed)</li>
+                                    <li>Assertion Failure in <code>aom_rb_read_literal</code> — <a href="https://aomedia.issues.chromium.org/issues/502133197" class="vuln-link">aomedia#502133197</a> (confirmed)</li>
+                                    <li>DoS via Infinite Recode Loop in SVC Encoder — <a href="https://issues.chromium.org/issues/505976409" class="vuln-link">chromium#505976409</a> (confirmed)</li>
+                                </ul>
+                            </div>
+
+                            <!-- openscreen -->
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3>openscreen (Cast Streaming)</h3>
+                                    <span class="fix-rate fix-rate-100">3/3 fixed</span>
+                                </div>
+                                <ul>
+                                    <li>Pre-Auth DoS in ANSWER Parser (jsoncpp non-object find) — <a href="https://issues.chromium.org/issues/505902443" class="vuln-link">chromium#505902443</a></li>
+                                    <li>Pre-Auth DoS in <code>ReceiverMessage::Parse</code> — <a href="https://issues.chromium.org/issues/505902444" class="vuln-link">chromium#505902444</a></li>
+                                    <li>Pre-Auth DoS in <code>SenderMessage::Parse</code> — <a href="https://issues.chromium.org/issues/505947418" class="vuln-link">chromium#505947418</a></li>
+                                    <li>All three landed in <a href="https://chromium-review.googlesource.com/c/openscreen/+/7801091" class="vuln-link">CL 7801091</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- tidy-html5 -->
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3>tidy-html5</h3>
+                                    <span class="fix-rate fix-rate-zero">0/3 awaiting review</span>
+                                </div>
+                                <ul>
+                                    <li>Memory Leak in <code>prvTidynewStack</code> — <a href="https://github.com/htacg/tidy-html5/issues/1177" class="vuln-link">tidy-html5#1177</a></li>
+                                    <li>OOM via Unbounded Error Buffer Growth — <a href="https://github.com/htacg/tidy-html5/issues/1176" class="vuln-link">tidy-html5#1176</a></li>
+                                    <li>Use-After-Free in GDoc CleanNode — <a href="https://github.com/htacg/tidy-html5/issues/1175" class="vuln-link">tidy-html5#1175</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- flatbuffers -->
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3>flatbuffers</h3>
+                                    <span class="fix-rate fix-rate-100">2/2 acked</span>
+                                </div>
+                                <ul>
+                                    <li>Heap Overflow in <code>flatbuffers::Verify</code> Reflection Verifier — <a href="https://github.com/google/flatbuffers/issues/9040" class="vuln-link">flatbuffers#9040</a> (confirmed)</li>
+                                    <li>Heap Overflow in FlexBuffers <code>toString</code> Post-Verification — <a href="https://github.com/google/flatbuffers/issues/9041" class="vuln-link">flatbuffers#9041</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- libvpx -->
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3>libvpx</h3>
+                                    <span class="fix-rate fix-rate-100">2/2 acked</span>
+                                </div>
+                                <ul>
+                                    <li>Heap Overflow in VP9 Encoder midstream reconfig — <a href="https://issues.webmproject.org/issues/501696590" class="vuln-link">webmproject#501696590</a> (confirmed)</li>
+                                    <li>Unbounded Allocation in VP8 Decoder Error Concealment — <a href="https://issues.webmproject.org/issues/501696591" class="vuln-link">webmproject#501696591</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- vorbis -->
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3>libvorbis</h3>
+                                    <span class="fix-rate fix-rate-zero">0/2 awaiting review</span>
+                                </div>
+                                <ul>
+                                    <li>Division by Zero in Residue Decoding — <a href="https://github.com/xiph/vorbis/issues/124" class="vuln-link">vorbis#124</a></li>
+                                    <li>Memory Leak in Header Parsing — <a href="https://github.com/xiph/vorbis/issues/125" class="vuln-link">vorbis#125</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- FreeRDP -->
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3>FreeRDP</h3>
+                                    <span class="fix-rate fix-rate-100">1/1 fixed</span>
+                                </div>
+                                <ul>
+                                    <li>Pre-Auth Memory Leak in NTLM AuthenticateMessage parser failure path — <a href="https://github.com/FreeRDP/FreeRDP/pull/12609" class="vuln-link">FreeRDP#12609</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- libavif -->
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3>libavif</h3>
+                                    <span class="fix-rate fix-rate-100">1/1 fixed</span>
+                                </div>
+                                <ul>
+                                    <li>Heap Buffer Overflow via signed-int length sign-extension at the Android JNI direct-ByteBuffer entry points — <a href="https://github.com/AOMediaCodec/libavif/pull/3178" class="vuln-link">libavif#3178</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- harfbuzz -->
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3>HarfBuzz</h3>
+                                    <span class="fix-rate fix-rate-100">1/1 fixed</span>
+                                </div>
+                                <ul>
+                                    <li>OOB write in fontations glyph-name callback when invoked with size==0 — <a href="https://github.com/harfbuzz/harfbuzz/pull/5947" class="vuln-link">harfbuzz#5947</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- nDPI -->
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3>nDPI</h3>
+                                    <span class="fix-rate fix-rate-100">1/1 fixed</span>
+                                </div>
+                                <ul>
+                                    <li>Unbounded sscanf in <code>ndpi_hex_decode</code> over a borrowed non-NUL-terminated buffer in <code>ndpi_decode_tls_blocks</code> — <a href="https://github.com/ntop/nDPI/pull/3163" class="vuln-link">nDPI#3163</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- ots -->
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3>OTS (Chrome's font sanitizer)</h3>
+                                    <span class="fix-rate fix-rate-100">1/1 fixed</span>
+                                </div>
+                                <ul>
+                                    <li>NULL deref in <code>ProcessGeneric</code> with <code>TABLE_ACTION_PASSTHRU</code> — <a href="https://github.com/khaledhosny/ots/pull/309" class="vuln-link">ots#309</a></li>
+                                </ul>
+                            </div>
+
+                            <!-- sqlite -->
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3>SQLite</h3>
+                                    <span class="fix-rate fix-rate-100">1/1 fixed</span>
+                                </div>
+                                <ul>
+                                    <li>Heap-Use-After-Free in <code>sqlite3Fts5PoslistNext64</code> via realloc-moved LookaheadReader (FTS5 path).</li>
+                                </ul>
+                            </div>
+
+                            <!-- ICU -->
+                            <div class="project-card">
+                                <div class="project-card-header">
+                                    <h3>ICU</h3>
+                                    <span class="fix-rate fix-rate-100">1/1 fixed</span>
+                                </div>
+                                <ul>
+                                    <li>Use-After-Free / NULL deref in <code>TransliterationRule</code> destructor — <a href="https://unicode-org.atlassian.net/browse/ICU-23365" class="vuln-link">ICU-23365</a> (fixed in ICU 79.1)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <h3>Additional New-Project Findings</h3>
+                        <p>Single-finding-per-project hits in this period.</p>
+                        <div class="vuln-table-wrapper">
+                            <table class="vuln-table">
+                                <thead>
+                                    <tr>
+                                        <th>Project</th>
+                                        <th>Vulnerability</th>
+                                        <th>Severity</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Cap'n Proto</td>
+                                        <td><a href="https://github.com/capnproto/capnproto/issues/2608" class="vuln-link">Stack Overflow in Text Codec Lexer</a></td>
+                                        <td><span class="severity-high">High</span></td>
+                                        <td><span class="status-confirmed">Submitted</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>crashpad</td>
+                                        <td><a href="https://issues.chromium.org/issues/501471719" class="vuln-link">Unbounded Alloc in MemorySnapshotMinidump</a></td>
+                                        <td><span class="severity-medium">Medium</span></td>
+                                        <td><span class="status-confirmed">Submitted</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Dawn</td>
+                                        <td><a href="https://issues.chromium.org/issues/502133194" class="vuln-link">Unbounded Alloc in BlobCache Stream</a></td>
+                                        <td><span class="severity-medium">Medium</span></td>
+                                        <td><span class="status-confirmed">Submitted</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>JavaScriptCore</td>
+                                        <td>DFG StrengthReductionPhase incorrectly resets m_changed flag</td>
+                                        <td><span class="severity-medium">Medium</span></td>
+                                        <td><span class="status-confirmed">Fixed</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>LevelDB</td>
+                                        <td><a href="https://github.com/google/leveldb/issues/1318" class="vuln-link">Unbounded Alloc in ReadBlock via Crafted SSTable Block Handle</a></td>
+                                        <td><span class="severity-high">High</span></td>
+                                        <td><span class="status-confirmed">Submitted</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>libheif</td>
+                                        <td><a href="https://github.com/strukturag/libheif/issues/1746" class="vuln-link">Heap Overflow in heif_image_crop</a></td>
+                                        <td><span class="severity-high">High</span></td>
+                                        <td><span class="status-confirmed">Submitted</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>libpng</td>
+                                        <td><a href="https://github.com/pnggroup/libpng/security/advisories/GHSA-qvg3-h654-xq3j" class="vuln-link">Heap-Use-After-Free in png_zlib_inflate via stale next_in (pCAL)</a></td>
+                                        <td><span class="severity-medium">Medium</span></td>
+                                        <td><span class="status-confirmed">Submitted (GHSA)</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>OpenCV</td>
+                                        <td><a href="https://github.com/opencv/opencv/issues/28619" class="vuln-link">Heap Buffer Overflow in YAML parser parseKey() (empty key)</a></td>
+                                        <td><span class="severity-low">Low</span></td>
+                                        <td><span class="status-confirmed">Fixed</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>OpenSSL</td>
+                                        <td><a href="https://github.com/openssl/openssl/issues/30284" class="vuln-link">Stack Buffer Over-Read in DES OFB/CFB64 (unchecked num) — 25 yrs latent</a></td>
+                                        <td><span class="severity-low">Low</span></td>
+                                        <td><span class="status-confirmed">Fixed</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>QUICHE</td>
+                                        <td><a href="https://issues.chromium.org/issues/501696594" class="vuln-link">Pre-Auth DoS in HTTP/3 Frame Decoder via QUICHE_BUG</a></td>
+                                        <td><span class="severity-medium">Medium</span></td>
+                                        <td><span class="status-confirmed">Submitted</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>RapidJSON</td>
+                                        <td><a href="https://github.com/Tencent/rapidjson/issues/2373" class="vuln-link">Assertion Failure in Regex Engine</a></td>
+                                        <td><span class="severity-high">High</span></td>
+                                        <td><span class="status-confirmed">Submitted</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>V8</td>
+                                        <td><a href="https://issuetracker.google.com/issues/502293786" class="vuln-link">Bytecode Mismatch in V8 Interpreter (correctness bug)</a></td>
+                                        <td><span class="severity-medium">Medium</span></td>
+                                        <td><span class="status-confirmed">Confirmed</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Timeline -->
+                    <section>
+                        <h2>Timeline</h2>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-date">February 2026</div>
+                                <h4>Last Campaign Update</h4>
+                                <p>62 vulnerabilities reported across 26 projects. Most through OSS-Fuzz harness audits on general open-source software.</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">March 2026</div>
+                                <h4>Pivot to Generation</h4>
+                                <p>Methodology designed and validated on existing harnesses. Two latent upstream library bugs surfaced when broken harnesses were repaired (the OpenSSL DES 25-year over-read and a tidy-html5 lexer leak).</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">April 2026</div>
+                                <h4>Two-Week Chromium Run</h4>
+                                <p>472 harnesses generated across 58 Chrome-stack libraries. 30 vulnerabilities filed upstream, 16 already acked. Verify gate dropped 52 candidates before any reached a maintainer.</p>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-date">April 30, 2026</div>
+                                <h4>Methodology Series Published</h4>
+                                <p>Three posts released today, plus this update. All-time numbers: 103 filed across 56 projects, 70 acknowledged by maintainers, FP rate under 5%.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- What's Next -->
                     <section class="future-section">
                         <h2>What Comes Next</h2>
                         <p>
-                            The 33 still-in-flight submissions are being chased through the same Security Proxies. The 12 acknowledged-but-not-yet-merged are waiting on upstream maintainer time, not on us. The next batch of harness generation widens the Chromium dependency graph (mojo IPC and Skia are next on the list) and extends the same Four Principles framework to a few network-stack libraries beyond Chrome.
+                            The 33 still-in-flight submissions are being chased through the same Security Proxies. The 12 acknowledged-but-not-yet-merged are waiting on upstream maintainer time. The next batch of harness generation widens the Chromium dependency graph (mojo IPC and Skia are next) and applies the same Four Principles framework to a few network-stack libraries beyond Chrome.
                         </p>
-                        <p>
-                            We are also continuing to publish the underlying dataset. The audit results, the Logic Group definitions per library, the Security Proxy YAMLs, and the harness sources are all in the public repo. If you build LLM-driven fuzz harness generation, sit on the receiving side of OSS-Fuzz reports as a maintainer, or just want to compare notes on harness quality, we would like to hear from you.
-                        </p>
+                        <div class="next-steps">
+                            <div class="next-step">
+                                <h4>Wider Chromium Coverage</h4>
+                                <p>mojo IPC, Skia rendering, and the remaining unfuzzed Chrome-vendor libraries.</p>
+                            </div>
+                            <div class="next-step">
+                                <h4>Beyond Chrome</h4>
+                                <p>Extending the same generate-and-verify pipeline to network-stack and database libraries that have lighter fuzz coverage today.</p>
+                            </div>
+                            <div class="next-step">
+                                <h4>Open Dataset</h4>
+                                <p>The audit results, Logic Group definitions, Security Proxy YAMLs, and harness sources continue to be published in the public repo.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- CTA -->
+                    <section class="cta-section">
+                        <div class="cta-content">
+                            <h2>Explore the Methodology</h2>
+                            <p>The Four Principles framework, the Logic Group abstraction, and the Security Proxies are all open. Reuse encouraged.</p>
+                            <div class="cta-buttons">
+                                <a href="https://github.com/o2lab/afc-crs-all-you-need-is-a-fuzzing-brain" class="btn btn-primary">
+                                    <span>View on GitHub</span>
+                                </a>
+                                <a href="https://fuzzingbrain.github.io/FuzzingBrain-Leaderboard/" class="btn btn-secondary">
+                                    <span>FuzzingBrain Leaderboard</span>
+                                </a>
+                            </div>
+                        </div>
                     </section>
 
                     <p style="text-align: right; margin-top: 3rem; color: #888; font-style: italic;">
