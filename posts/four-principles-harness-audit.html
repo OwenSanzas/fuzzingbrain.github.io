@@ -46,7 +46,7 @@
                         <span class="post-readtime">14 min read</span>
                     </div>
                     <h1 class="post-title-main">Harness 也会有 bug:基于四原则的 OSS-Fuzz Harness 审计</h1>
-                    <p class="post-subtitle">在跑 fuzzer 之前,先把 harness 自己审一遍。我们用四原则在 70 个 OSS-Fuzz 项目的 586 个生产 harness 上做了一轮审计,拦下 14 个本会被错报的 FP,提了 53 个修复 PR,顺带挖出一个潜伏 25 年的 OpenSSL 老 bug。</p>
+                    <p class="post-subtitle">在跑 fuzzer 之前,先把 harness 自己审一遍。我们用四原则在 70 个 OSS-Fuzz 项目的 586 个生产 harness 上做了一轮审计,拦下 14 个本会被错报的 FP,提了 53 个修复 PR,顺带把<strong>两个被失效 harness 长期掩盖的真上游 bug</strong>暴露出来 —— 其中一个在 OpenSSL DES 实现里潜伏了 25 年以上。</p>
                 </div>
             </div>
 
@@ -76,8 +76,8 @@
                                 </div>
                                 <div class="result-stat">
                                     <div class="stat-icon">2</div>
-                                    <div class="stat-value">真上游 bug</div>
-                                    <div class="stat-label">含 OpenSSL 25 年老洞</div>
+                                    <div class="stat-value">被失效 harness 掩盖的真 bug</div>
+                                    <div class="stat-label">修对 harness 后浮出 · 含 OpenSSL 25 年老洞</div>
                                 </div>
                             </div>
                         </div>
@@ -382,7 +382,7 @@
                             <li>给上游的每个 PR 必须附 root-cause + 修复 + 覆盖率不降的证据,不能只甩 sanitizer trace。</li>
                         </ol>
                         <p>
-                            这套流程的成本是有限的:586 个 harness 平均每个 10 分钟、10 并发,总开销大约 $720。换来的是 14 个永远不会成为噪声报告的 FP、35 个被上游接受的修复、和一个潜伏 25 年的真上游 bug。这笔账无论从工程化成本还是 ecosystem trust 角度都是正的。
+                            这套流程的成本是有限的:586 个 harness 平均每个 10 分钟、10 并发,总开销大约 $720。换来的是 14 个永远不会成为噪声报告的 FP、35 个被上游接受的修复、以及两个被失效 harness 长期掩盖的真上游 bug(含 OpenSSL 潜伏 25 年的那条)。这笔账无论从工程化成本还是 ecosystem trust 角度都是正的。
                         </p>
                     </section>
 
