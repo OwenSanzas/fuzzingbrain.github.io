@@ -171,7 +171,24 @@
                             库的每个 API 都有自己的使用协议:什么时候 init、什么时候 destroy、参数允许哪些范围、返回值需不需要检查、哪些调用必须配对。LLM 生成的 harness 经常违反这些协议,因为它无法从单个函数签名看出整个状态机。具体的 8 条 P2 子检查在下文 P1.1–P2.8 清单里列全。
                         </p>
                         <p>
-                            <strong>P2 违反 ⇒ 这个 crash 是 API 误用,不是库漏洞。</strong>但 P2 还有一种比"上报 FP"更隐蔽的失败模式:harness 编译过、跑起来、coverage 还在涨,可是某个早期的配置调用已经把后面那条目标路径悄悄清空了。fuzzer 看起来在工作,实际上目标的内存安全代码一帧都没走到。你不是没找到 bug,你是根本没在测。这种 case 在 sanitizer 层面没有任何 crash 信号,却让整个 fuzz 周期产物为零,比 FP 还白干。
+                            举一个真碰到的例子。OSS-Fuzz 上的 <code>libyaml_emitter_fuzzer</code> 在喂 emitter 之前要先用一个本地 helper <code>copy_event()</code> 把解析出的 event 拷进 ring buffer。helper 沿用 libyaml 的约定:<strong>成功返回 1,失败返回 0</strong>。harness 里的判定却长这样:
+                        </p>
+<pre><code class="language-c">if (copy_event(&events[event_number++], &event)) {
+    yaml_event_delete(&event);
+    goto delete_parser;     // ← 错误处理入口
+}
+</code></pre>
+                        <p>
+                            <strong>哪错了:</strong>条件反了。<code>copy_event</code> 返回 1 是成功,但 harness 把 1 当成了"失败",一旦拷成功就直接跳进错误清理。
+                        </p>
+                        <p>
+                            <strong>为什么错:</strong>对任何合法 YAML 输入,fuzzer 都会在第一个 event 上短路退出。后面整个 emitter pipeline(<code>yaml_emitter_emit</code>)、第二轮 re-parser、event 等价比较 —— 全是死代码。整个 harness 大概 <strong>50% 的逻辑从来没被执行过</strong>,但它编译能过、运行不崩、还能涨 coverage(涨在那 50% 还在跑的部分),所以在 OSS-Fuzz 上稳稳跑了多年没人发现。
+                        </p>
+                        <p>
+                            修法只有一个字:加感叹号。<code>if (copy_event(...))</code> → <code>if (!copy_event(...))</code>。修完之后 fuzzer 的 edge coverage 从 166 涨到 2479,<strong>+1393%</strong>(约 15 倍)。这是典型的 <strong>P2.4(Return value handling)</strong> 违规 —— 返回值含义弄反,误把成功当失败。完整修复 PR:<a href="https://github.com/google/oss-fuzz/pull/15096">google/oss-fuzz#15096</a>,已合并。
+                        </p>
+                        <p>
+                            <strong>P2 违反 ⇒ 这个 crash 是 API 误用,不是库漏洞。</strong>但 P2 还有一种比"上报 FP"更隐蔽的失败模式 —— 就是上面这种,harness 编译过、跑起来、coverage 还在涨,可是某个错误的判定已经把后面那条目标路径悄悄清空了。fuzzer 看起来在工作,实际上目标的内存安全代码一帧都没走到。你不是没找到 bug,你是根本没在测。这种 case 在 sanitizer 层面没有任何 crash 信号,却让整个 fuzz 周期产物为零,比 FP 还白干。
                         </p>
 
                         <h3>P3 — Security Boundary Respect:鼓励走公开 API</h3>
