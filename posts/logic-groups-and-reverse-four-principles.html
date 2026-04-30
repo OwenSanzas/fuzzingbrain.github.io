@@ -101,25 +101,25 @@
                     <section>
                         <h2>为什么生成时要"反过来"用</h2>
                         <p>
-                            审计的时候,顺序是 P1 → P2 → P3 → P4 —— 先看 harness 自身代码对不对,再看它和库的交互对不对,再看它有没有越过安全边界,最后才考虑入口选得好不好。这个顺序符合"接住一个 harness 后逐层放大视野"的直觉。
+                            审计的时候,顺序是 P1 → P2 → P3 → P4(<a href="four-principles-harness-audit.html">四原则的完整定义见上一篇</a>)—— 先看 harness 自身代码对不对,再看它和库的交互对不对,再看它有没有越过安全边界,最后才考虑入口选得好不好。这个顺序符合"接住一个 harness 后逐层放大视野"的直觉。
                         </p>
                         <p>
-                            生成的时候,这个顺序<strong>是错的</strong>。如果你先让 LLM 写代码、写得很正确(P1 / P2 都干净),最后才发现入口选错(P4),那前面的工作全要扔。生成阶段必须从最外层的"目标对不对"开始往内走:
+                            生成时这个顺序<strong>是错的</strong>。如果你先让 LLM 写代码、写得很正确,最后才发现入口选错,那前面的工作全要扔。生成阶段必须从最外层的"目标对不对"开始往内走:
                         </p>
 
                         <ul>
-                            <li><strong>第 1 步,P4(Entry Point Adequacy)</strong> —— 你要 fuzz 哪个攻击面?哪个公开 API?它的可达闭包里有没有内存安全相关的操作?如果答案是"没有",直接换目标,别写代码。</li>
-                            <li><strong>第 2 步,P3(Security Boundary Respect)</strong> —— 选定的入口尽量是公开 API。允许使用内部符号,但前提是同样的行为能<em>从公开 API 复现出来</em>;如果某个内部状态机的 crash 只能从 <code>static</code> 函数进、公开侧无法到达,这不是合法 fuzz 目标。</li>
-                            <li><strong>第 3 步,P2(API Protocol Compliance)</strong> —— 把这个目标的 API 协议研究清楚:调用顺序、生命周期、参数约束、配对清理。这是写 harness 之前的功课。</li>
-                            <li><strong>第 4 步,P1(Logic Correctness)</strong> —— 写代码。一旦前面三层都对了,P1 是个相对孤立的工程问题(变量初始化、资源释放、状态隔离)。</li>
+                            <li><strong>P4 选攻击面</strong> —— 公开 API 闭包里要有内存安全相关操作,否则换目标</li>
+                            <li><strong>P3 验边界</strong> —— 入口尽量公开;若用内部符号,公开侧必须能复现</li>
+                            <li><strong>P2 研协议</strong> —— 摸清调用顺序 / 生命周期 / 参数约束 / 配对清理(<em>写 harness 之前</em>的功课)</li>
+                            <li><strong>P1 写代码</strong> —— 前三层都对了,P1 就是孤立的工程问题</li>
                         </ul>
 
                         <p>
-                            生成阶段任何一步失败都不进入下一步。对 LLM 来说,这把"自由发挥的空间"逐层收窄,产出的 harness 不会跑题到内部 helper 上,也不会用一个错误的调用顺序把库的真实行为遮掉。
+                            任何一步失败都不进入下一步。对 LLM 来说,这把"自由发挥的空间"逐层收窄,产出的 harness 不会跑题到内部 helper 上,也不会用错误的调用顺序把库的真实行为遮掉。
                         </p>
 
                         <p>
-                            还有一个关键的工程边界值得点出:<strong>P3 和 P4 的判断不交给 LLM 单点决策</strong>。这两步都涉及"这个用法是否合理 / 这个入口是否在真实攻击面上"的判断 —— 一个读过库 SECURITY.md、做过 review 的人能凭直觉给出靠谱答案,<strong>但一个没有项目上下文的第三方通用 LLM 给不出</strong>。所以反向流水线在 Stage 1(P4/P3)这一步走的是"LLM 列候选 + 静态调用图给可达性 + 资深 reviewer 在 borderline case review"的组合,而不是让 LLM 一锤定音。这条边界让流水线的 470 个 fuzzer 在质量上能被人问责。
+                            还有一条工程边界值得点出:<strong>P3 / P4 的判断不交给 LLM 单点决策</strong>。这两条都涉及"这个用法是否合理 / 这个入口是否在真实攻击面上"的判断 —— 资深 reviewer 凭项目经验能给出靠谱答案,<strong>但没有项目上下文的第三方通用 LLM 给不出</strong>。所以反向流水线在 Stage 1(P4/P3)走的是"LLM 列候选 + 静态调用图给可达性 + 资深 reviewer 在 borderline case review"的组合 —— LLM 是工具不是裁判。这条边界让 470 个 fuzzer 在质量上能被人问责。
                         </p>
                     </section>
 
