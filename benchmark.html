@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FuzzingBrain Bench — Can LLMs Find Real Bugs?</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+    <style>
+    /* ---- benchmark page scoped styles ---- */
+    .bench-hero{padding:72px 0 40px;text-align:center}
+    .bench-kicker{font-family:var(--font-mono);font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;color:var(--indigo-400);margin-bottom:14px}
+    .bench-hero h2{font-size:2.6rem;line-height:1.15;margin:0 auto 16px;max-width:14ch}
+    .bench-hero .lede{max-width:60ch;margin:0 auto;color:var(--text-secondary);font-size:1.12rem;line-height:1.6}
+    .bench-statrow{display:flex;flex-wrap:wrap;justify-content:center;gap:18px;margin:34px 0 8px}
+    .bench-stat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 26px;min-width:150px}
+    .bench-stat .n{font-size:2rem;font-weight:700;color:var(--text-primary);font-family:var(--font-mono)}
+    .bench-stat .l{font-size:.82rem;color:var(--text-muted);margin-top:4px}
+    .bench-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+
+    .bench-section{padding:44px 0;border-top:1px solid var(--border)}
+    .bench-section h3.hd{font-size:1.7rem;margin:0 0 6px}
+    .bench-section .sub{color:var(--text-muted);max-width:64ch;margin:0 0 26px;font-size:1rem}
+
+    .pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+    .pillar{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px}
+    .pillar .ic{font-size:1.5rem;margin-bottom:10px}
+    .pillar h4{margin:0 0 8px;font-size:1.05rem}
+    .pillar p{margin:0;color:var(--text-secondary);font-size:.92rem;line-height:1.55}
+
+    /* charts */
+    .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px 26px 20px}
+    .chart-card h4{margin:0 0 2px;font-size:1.06rem}
+    .chart-card .cap{color:var(--text-muted);font-size:.86rem;margin:0 0 16px;max-width:70ch}
+    .chart-svg{width:100%;height:auto;display:block;overflow:visible}
+    .legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:12px;font-size:.84rem;color:var(--text-secondary)}
+    .legend span{display:inline-flex;align-items:center;gap:7px}
+    .legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+    .grid-2{display:grid;grid-template-columns:1fr;gap:20px}
+    @media(min-width:960px){.grid-2{grid-template-columns:1fr 1fr}}
+
+    /* corpus bars */
+    .cbar-row{display:grid;grid-template-columns:88px 1fr 46px;align-items:center;gap:12px;margin:9px 0}
+    .cbar-row .k{font-size:.86rem;color:var(--text-secondary);text-align:right}
+    .cbar-track{background:var(--slate-900);border-radius:6px;height:22px;overflow:hidden}
+    .cbar-fill{height:100%;border-radius:6px}
+    .cbar-row .v{font-size:.84rem;color:var(--text-muted);font-family:var(--font-mono)}
+
+    .takeaways{list-style:none;padding:0;margin:8px 0 0}
+    .takeaways li{position:relative;padding:8px 0 8px 26px;color:var(--text-secondary);line-height:1.55;border-bottom:1px solid var(--border)}
+    .takeaways li:last-child{border-bottom:0}
+    .takeaways li::before{content:"›";position:absolute;left:6px;color:var(--indigo-400);font-weight:700}
+    .takeaways b{color:var(--text-primary)}
+
+    .runbox{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+    .runbox pre{margin:0}
+    .bottomline{background:var(--gradient-primary);border-radius:16px;padding:30px 32px;color:#fff}
+    .bottomline h3{margin:0 0 10px;color:#fff}
+    .bottomline p{margin:0;color:rgba(255,255,255,.92);line-height:1.6;max-width:66ch}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="index.html" class="logo-link">
+                        <img src="assets/images/fuzzbrain.jpg" alt="FuzzingBrain Logo" class="brain-logo">
+                        <h1>FuzzingBrain</h1>
+                    </a>
+                </div>
+                <button class="mobile-menu-btn" aria-label="Toggle navigation menu">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                <nav class="nav" aria-label="Main navigation">
+                    <a href="documentation.html">Docs</a>
+                    <a href="quickstart.html">Quickstart</a>
+                    <a href="benchmark.html" class="nav-active">Benchmark</a>
+                    <a href="blog.html">Blog</a>
+                    <a href="disclosures.html">Disclosures</a>
+                    <a href="index.html#results">Results</a>
+                    <a href="https://github.com/OwenSanzas/FuzzingBrain-Bench" class="nav-cta" target="_blank" rel="noopener noreferrer">GitHub</a>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Hero -->
+        <section class="bench-hero">
+            <div class="section-content">
+                <div class="bench-kicker">FuzzingBrain Bench</div>
+                <h2>Can LLMs Actually Find Real Bugs?</h2>
+                <p class="lede">Everyone says language models can find vulnerabilities. No public benchmark measures the finding. FuzzingBrain Bench ships 68 real bugs across 40 projects, hides the answer, and lets the program itself decide whether the model found the bug or just found a bug.</p>
+                <div class="bench-statrow">
+                    <div class="bench-stat"><div class="n">68</div><div class="l">Real bugs</div></div>
+                    <div class="bench-stat"><div class="n">40</div><div class="l">OSS projects</div></div>
+                    <div class="bench-stat"><div class="n">5</div><div class="l">Rung ladder</div></div>
+                    <div class="bench-stat"><div class="n">0</div><div class="l">Answers shipped</div></div>
+                </div>
+                <div class="bench-cta">
+                    <a href="https://github.com/OwenSanzas/FuzzingBrain-Bench" class="btn btn-primary"><span>📂</span> Get the Benchmark</a>
+                    <a href="quickstart.html" class="btn btn-secondary"><span>⚡</span> Run in 5 Minutes</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- What it is -->
+        <section class="bench-section">
+            <div class="section-content">
+                <h3 class="hd">What makes it a bug-finding benchmark</h3>
+                <p class="sub">Three design choices separate finding the bug from writing text that sounds like finding the bug.</p>
+                <div class="pillars">
+                    <div class="pillar">
+                        <div class="ic">🔒</div>
+                        <h4>Answer-free by construction</h4>
+                        <p>Every challenge is a sealed Docker image named by a neutral alias. No patch, no fix commit, no target line. The PoC and the expected fault live only behind a remote oracle, so a model cannot read the answer off disk.</p>
+                    </div>
+                    <div class="pillar">
+                        <div class="ic">⚖️</div>
+                        <h4>A deterministic oracle</h4>
+                        <p>No LLM judge. The candidate input runs through the real sanitizer-instrumented harness on a private grading service, which returns only a verdict. The same input always grades the same way.</p>
+                    </div>
+                    <div class="pillar">
+                        <div class="ic">🪜</div>
+                        <h4>A capability ladder</h4>
+                        <p>Grading is five nested rungs from reach to crash to differential to class to site. A model earns partial credit for getting close, and a full solve only when it lands the exact documented fault at the exact place.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Capability ladder chart -->
+        <section class="bench-section">
+            <div class="section-content">
+                <h3 class="hd">The ladder separates two skills</h3>
+                <p class="sub">Reaching the buggy code is navigation. Turning that into the exact crash is exploitation. The gap between the two is where models differ most.</p>
+                <div class="chart-card">
+                    <h4>How far each model gets down the ladder</h4>
+                    <p class="cap">Share of all runs that fire each rung, pooled over every task mode. Both models reach the code often. Only the stronger one keeps landing the exact crash at the exact site.</p>
+                    <svg class="chart-svg" viewBox="0 0 760 250" role="img" aria-label="Capability ladder funnel">
+                        <!-- rows -->
+                        <!-- reach -->
+                        <text x="140" y="42" text-anchor="end" fill="#cbd5e1" font-size="14" font-family="Inter">reach</text>
+                        <rect x="150" y="30" width="492.8" height="15" rx="3" fill="#6366f1"/>
+                        <text x="650" y="42" fill="#818cf8" font-size="12.5" font-family="JetBrains Mono">88%</text>
+                        <rect x="150" y="48" width="397.6" height="15" rx="3" fill="#f59e0b"/>
+                        <text x="556" y="60" fill="#f59e0b" font-size="12.5" font-family="JetBrains Mono">71%</text>
+                        <!-- crash -->
+                        <text x="140" y="98" text-anchor="end" fill="#cbd5e1" font-size="14" font-family="Inter">crash</text>
+                        <rect x="150" y="86" width="470.4" height="15" rx="3" fill="#6366f1"/>
+                        <text x="628" y="98" fill="#818cf8" font-size="12.5" font-family="JetBrains Mono">84%</text>
+                        <rect x="150" y="104" width="252" height="15" rx="3" fill="#f59e0b"/>
+                        <text x="410" y="116" fill="#f59e0b" font-size="12.5" font-family="JetBrains Mono">45%</text>
+                        <!-- class -->
+                        <text x="140" y="154" text-anchor="end" fill="#cbd5e1" font-size="14" font-family="Inter">class</text>
+                        <rect x="150" y="142" width="420" height="15" rx="3" fill="#6366f1"/>
+                        <text x="578" y="154" fill="#818cf8" font-size="12.5" font-family="JetBrains Mono">75%</text>
+                        <rect x="150" y="160" width="212.8" height="15" rx="3" fill="#f59e0b"/>
+                        <text x="370" y="172" fill="#f59e0b" font-size="12.5" font-family="JetBrains Mono">38%</text>
+                        <!-- site -->
+                        <text x="140" y="210" text-anchor="end" fill="#cbd5e1" font-size="14" font-family="Inter">site</text>
+                        <rect x="150" y="198" width="369.6" height="15" rx="3" fill="#6366f1"/>
+                        <text x="527" y="210" fill="#818cf8" font-size="12.5" font-family="JetBrains Mono">66%</text>
+                        <rect x="150" y="216" width="196" height="15" rx="3" fill="#f59e0b"/>
+                        <text x="354" y="228" fill="#f59e0b" font-size="12.5" font-family="JetBrains Mono">35%</text>
+                    </svg>
+                    <div class="legend">
+                        <span><i style="background:#6366f1"></i> GPT-5.5</span>
+                        <span><i style="background:#f59e0b"></i> Haiku 4.5</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Headline results -->
+        <section class="bench-section">
+            <div class="section-content">
+                <h3 class="hd">What frontier models actually score</h3>
+                <p class="sub">Solve rate over all 68 bugs, by how much context the agent is handed. Normal gives the full description. Full-scan gives nothing but the harness. Diff-0 through diff-3 give a file-name hint with a rising pile of decoy files.</p>
+                <div class="chart-card">
+                    <h4>Solve rate by task mode</h4>
+                    <p class="cap">The description is worth roughly 25 points. Removing it hurts both models, but the weaker one collapses while the stronger one recovers the bug from source and harness on its own.</p>
+                    <svg class="chart-svg" viewBox="0 0 760 360" role="img" aria-label="Solve rate by task mode">
+                        <!-- gridlines + y labels -->
+                        <g font-family="JetBrains Mono" font-size="11" fill="#64748b">
+                            <line x1="56" y1="310" x2="740" y2="310" stroke="#334155"/>
+                            <line x1="56" y1="242.5" x2="740" y2="242.5" stroke="#1e293b"/>
+                            <line x1="56" y1="175" x2="740" y2="175" stroke="#1e293b"/>
+                            <line x1="56" y1="107.5" x2="740" y2="107.5" stroke="#1e293b"/>
+                            <line x1="56" y1="40" x2="740" y2="40" stroke="#1e293b"/>
+                            <text x="48" y="314" text-anchor="end">0</text>
+                            <text x="48" y="246" text-anchor="end">25</text>
+                            <text x="48" y="179" text-anchor="end">50</text>
+                            <text x="48" y="111" text-anchor="end">75</text>
+                            <text x="48" y="44" text-anchor="end">100</text>
+                        </g>
+                        <!-- bars: haiku amber, gpt indigo -->
+                        <g>
+                            <!-- normal -->
+                            <rect x="78"  y="156.1" width="32" height="153.9" rx="2" fill="#f59e0b"/>
+                            <rect x="114" y="80.5"  width="32" height="229.5" rx="2" fill="#6366f1"/>
+                            <text x="94"  y="150" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="JetBrains Mono">57</text>
+                            <text x="130" y="74"  text-anchor="middle" fill="#818cf8" font-size="11" font-family="JetBrains Mono">85</text>
+                            <!-- full-scan -->
+                            <rect x="192" y="218.2" width="32" height="91.8"  rx="2" fill="#f59e0b"/>
+                            <rect x="228" y="118.3" width="32" height="191.7" rx="2" fill="#6366f1"/>
+                            <text x="208" y="212" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="JetBrains Mono">34</text>
+                            <text x="244" y="112" text-anchor="middle" fill="#818cf8" font-size="11" font-family="JetBrains Mono">71</text>
+                            <!-- diff-0 -->
+                            <rect x="306" y="239.8" width="32" height="70.2"  rx="2" fill="#f59e0b"/>
+                            <rect x="342" y="139.9" width="32" height="170.1" rx="2" fill="#6366f1"/>
+                            <text x="322" y="233" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="JetBrains Mono">26</text>
+                            <text x="358" y="134" text-anchor="middle" fill="#818cf8" font-size="11" font-family="JetBrains Mono">63</text>
+                            <!-- diff-1 -->
+                            <rect x="420" y="231.7" width="32" height="78.3"  rx="2" fill="#f59e0b"/>
+                            <rect x="456" y="156.1" width="32" height="153.9" rx="2" fill="#6366f1"/>
+                            <text x="436" y="225" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="JetBrains Mono">29</text>
+                            <text x="472" y="150" text-anchor="middle" fill="#818cf8" font-size="11" font-family="JetBrains Mono">57</text>
+                            <!-- diff-2 -->
+                            <rect x="534" y="239.8" width="32" height="70.2"  rx="2" fill="#f59e0b"/>
+                            <rect x="570" y="150.7" width="32" height="159.3" rx="2" fill="#6366f1"/>
+                            <text x="550" y="233" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="JetBrains Mono">26</text>
+                            <text x="586" y="145" text-anchor="middle" fill="#818cf8" font-size="11" font-family="JetBrains Mono">59</text>
+                            <!-- diff-3 -->
+                            <rect x="648" y="242.5" width="32" height="67.5"  rx="2" fill="#f59e0b"/>
+                            <rect x="684" y="139.9" width="32" height="170.1" rx="2" fill="#6366f1"/>
+                            <text x="664" y="236" text-anchor="middle" fill="#f59e0b" font-size="11" font-family="JetBrains Mono">25</text>
+                            <text x="700" y="134" text-anchor="middle" fill="#818cf8" font-size="11" font-family="JetBrains Mono">63</text>
+                        </g>
+                        <!-- x labels -->
+                        <g font-family="Inter" font-size="12" fill="#cbd5e1" text-anchor="middle">
+                            <text x="113" y="330">normal</text>
+                            <text x="227" y="330">full-scan</text>
+                            <text x="341" y="330">diff-0</text>
+                            <text x="455" y="330">diff-1</text>
+                            <text x="569" y="330">diff-2</text>
+                            <text x="683" y="330">diff-3</text>
+                        </g>
+                        <text x="18" y="175" transform="rotate(-90 18 175)" text-anchor="middle" fill="#64748b" font-size="11.5" font-family="Inter">solve rate (%)</text>
+                    </svg>
+                    <div class="legend">
+                        <span><i style="background:#6366f1"></i> GPT-5.5</span>
+                        <span><i style="background:#f59e0b"></i> Haiku 4.5</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Crash is not solve -->
+        <section class="bench-section">
+            <div class="section-content">
+                <h3 class="hd">A crash is not a solve</h3>
+                <p class="sub">The oracle fires the crash rung for any fault, but class and site require the documented one. That gap is why crash-counting overstates real skill.</p>
+                <div class="grid-2">
+                    <div class="chart-card">
+                        <h4>Of every run that crashed the harness</h4>
+                        <p class="cap">Only three quarters of crashes were the preset bug. Grading on did-it-crash alone would over-count real solves by about a quarter.</p>
+                        <svg class="chart-svg" viewBox="0 0 560 90" role="img" aria-label="Off-target crash breakdown">
+                            <rect x="0"     y="20" width="420" height="40" rx="5" fill="#10b981"/>
+                            <rect x="422"   y="20" width="78.4" height="40" fill="#f59e0b"/>
+                            <rect x="502.4" y="20" width="57.6" height="40" rx="5" fill="#ef4444"/>
+                            <text x="210"   y="45" text-anchor="middle" fill="#04140d" font-size="13" font-family="Inter" font-weight="600">75% on-target</text>
+                            <text x="461"   y="80" text-anchor="middle" fill="#f59e0b" font-size="11.5" font-family="JetBrains Mono">14% wrong site</text>
+                            <text x="531"   y="45" text-anchor="middle" fill="#fff" font-size="11.5" font-family="JetBrains Mono">12%</text>
+                            <text x="531"   y="14" text-anchor="middle" fill="#f87171" font-size="11" font-family="Inter">off-target</text>
+                        </svg>
+                        <div class="legend">
+                            <span><i style="background:#10b981"></i> right class and site</span>
+                            <span><i style="background:#f59e0b"></i> right class, wrong site</span>
+                            <span><i style="background:#ef4444"></i> a different bug</span>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h4>Why strict grading matters</h4>
+                        <ul class="takeaways">
+                            <li><b>64%</b> of runs produced some crash, but many were the wrong fault.</li>
+                            <li>The <b>class</b> and <b>site</b> rungs cleanly split found a bug from found the bug.</li>
+                            <li>The weaker model goes off-target more often, so it thinks it won when it did not.</li>
+                            <li>A deterministic oracle makes this call the same way every single time.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Corpus -->
+        <section class="bench-section">
+            <div class="section-content">
+                <h3 class="hd">Inside the corpus</h3>
+                <p class="sub">Sixty-eight real bugs across forty projects, spread across languages and sanitizers so no single skill carries the score.</p>
+                <div class="grid-2">
+                    <div class="chart-card">
+                        <h4>By language</h4>
+                        <div class="cbar-row"><div class="k">C</div><div class="cbar-track"><div class="cbar-fill" style="width:46%;background:#6366f1"></div></div><div class="v">31</div></div>
+                        <div class="cbar-row"><div class="k">C++</div><div class="cbar-track"><div class="cbar-fill" style="width:41%;background:#818cf8"></div></div><div class="v">28</div></div>
+                        <div class="cbar-row"><div class="k">Java / JVM</div><div class="cbar-track"><div class="cbar-fill" style="width:13%;background:#f59e0b"></div></div><div class="v">9</div></div>
+                    </div>
+                    <div class="chart-card">
+                        <h4>By sanitizer</h4>
+                        <div class="cbar-row"><div class="k">ASan</div><div class="cbar-track"><div class="cbar-fill" style="width:100%;background:#6366f1"></div></div><div class="v">44</div></div>
+                        <div class="cbar-row"><div class="k">Jazzer</div><div class="cbar-track"><div class="cbar-fill" style="width:20%;background:#f59e0b"></div></div><div class="v">9</div></div>
+                        <div class="cbar-row"><div class="k">libFuzzer</div><div class="cbar-track"><div class="cbar-fill" style="width:18%;background:#818cf8"></div></div><div class="v">8</div></div>
+                        <div class="cbar-row"><div class="k">UBSan</div><div class="cbar-track"><div class="cbar-fill" style="width:9%;background:#34d399"></div></div><div class="v">4</div></div>
+                        <div class="cbar-row"><div class="k">LSan</div><div class="cbar-track"><div class="cbar-fill" style="width:7%;background:#10b981"></div></div><div class="v">3</div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How to run -->
+        <section class="bench-section">
+            <div class="section-content">
+                <h3 class="hd">Run it in five minutes</h3>
+                <p class="sub">Only Docker and a model key are needed. No build, no answer key, nothing to download but the sealed image.</p>
+                <div class="runbox">
+<pre><code class="language-bash"># install
+git clone https://github.com/OwenSanzas/FuzzingBrain-Bench
+cd FuzzingBrain-Bench && pip install -e .
+
+# put your key in ./.env, then run one challenge
+fb-bench run avro-03 --model claude-haiku-4-5
+
+# or sweep the whole corpus with one model
+python -m fbbench.sweep.orchestrator --models gpt-5.5 --bugs all --exp run1</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom line -->
+        <section class="bench-section">
+            <div class="section-content">
+                <div class="bottomline">
+                    <h3>The bottom line</h3>
+                    <p>Difficulty here is not about how deep a bug sits or how many bytes the input needs. It is about constructing the one input that satisfies the crash condition. The best frontier model recovers most bugs cold, yet a hard tail resists every model in every mode. That is the frontier this benchmark measures.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-text">
+                    <p>© 2026 All You Need Is A Fuzzing Brain Research Team</p>
+                    <p>Advancing autonomous vulnerability discovery through AI</p>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/OwenSanzas/FuzzingBrain-Bench"><img src="assets/images/fuzzbrain.jpg" alt="GitHub" class="footer-logo"> GitHub</a>
+                    <a href="https://aicyberchallenge.com/">🏆 DARPA AIxCC</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-bash.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
