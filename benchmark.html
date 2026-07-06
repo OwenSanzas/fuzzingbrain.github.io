@@ -107,31 +107,6 @@
             </div>
         </section>
 
-        <!-- What it is -->
-        <section class="bench-section">
-            <div class="section-content">
-                <h3 class="hd">What makes it a bug-finding benchmark</h3>
-                <p class="sub">Three design choices separate finding the bug from writing text that sounds like finding the bug.</p>
-                <div class="pillars">
-                    <div class="pillar">
-                        <div class="ic">🔒</div>
-                        <h4>Answer-free by construction</h4>
-                        <p>Every challenge is a sealed Docker image named by a neutral alias. No patch, no fix commit, no target line. The PoC and the expected fault live only behind a remote oracle, so a model cannot read the answer off disk.</p>
-                    </div>
-                    <div class="pillar">
-                        <div class="ic">⚖️</div>
-                        <h4>A deterministic oracle</h4>
-                        <p>No LLM judge. The candidate input runs through the real sanitizer-instrumented harness on a private grading service, which returns only a verdict. The same input always grades the same way.</p>
-                    </div>
-                    <div class="pillar">
-                        <div class="ic">🪜</div>
-                        <h4>A capability ladder</h4>
-                        <p>Grading is five nested levels from reach to crash to differential to class to site. A model earns partial credit for getting close, and a full solve only when it lands the exact documented fault at the exact place.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- Capability ladder chart -->
         <section class="bench-section">
             <div class="section-content">
