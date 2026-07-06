@@ -126,8 +126,7 @@
     /* capability-ladder pyramid */
     .ladder-wrap{display:grid;grid-template-columns:minmax(230px,.95fr) 1.15fr;gap:30px;align-items:center;margin-top:18px}
     @media(max-width:720px){.ladder-wrap{grid-template-columns:1fr;gap:18px}}
-    .ladder-svg{width:100%;height:auto;max-width:360px;margin:0 auto;display:block}
-    .ladder-axis{display:flex;justify-content:space-between;max-width:360px;margin:6px auto 0;font-size:.74rem;color:var(--text-faint);font-family:var(--font-mono)}
+    .ladder-svg{width:100%;height:auto;max-width:430px;margin:0 auto;display:block}
     .ladder-list{list-style:none;counter-reset:lv;margin:0;padding:0}
     .ladder-list li{counter-increment:lv;position:relative;padding:11px 0 11px 40px;border-bottom:1px solid var(--border);color:var(--text-secondary);line-height:1.5;font-size:.93rem}
     .ladder-list li:last-child{border-bottom:0}
@@ -222,23 +221,36 @@
                     <p>A candidate is graded on five nested levels, each strictly stronger than the one before, so passing a level means every level above it also passed. A bug counts as solved only when every level in its required set fires, and each challenge declares which levels it requires.</p>
                     <div class="ladder-wrap">
                         <div>
-                            <svg class="ladder-svg" viewBox="0 0 360 300" role="img" aria-label="Capability ladder pyramid">
-                                <g stroke="#0f172a" stroke-width="2" font-family="JetBrains Mono" text-anchor="middle">
-                                    <polygon points="140,20 220,20 246,74 114,74" fill="#4c43d9"/>
-                                    <polygon points="114,74 246,74 272,128 88,128" fill="#5850ec"/>
-                                    <polygon points="88,128 272,128 298,182 62,182" fill="#6366f1"/>
-                                    <polygon points="62,182 298,182 324,236 36,236" fill="#7079f2"/>
-                                    <polygon points="36,236 324,236 350,290 10,290" fill="#8b93f7"/>
+                            <svg class="ladder-svg" viewBox="0 0 460 320" role="img" aria-label="Capability ladder pyramid">
+                                <!-- pyramid tiers -->
+                                <g stroke="#0f172a" stroke-width="2">
+                                    <polygon points="190,24 270,24 292,78 168,78" fill="#4c43d9"/>
+                                    <polygon points="168,78 292,78 314,132 146,132" fill="#5850ec"/>
+                                    <polygon points="146,132 314,132 336,186 124,186" fill="#6366f1"/>
+                                    <polygon points="124,186 336,186 358,240 102,240" fill="#7079f2"/>
+                                    <polygon points="102,240 358,240 380,294 80,294" fill="#8b93f7"/>
                                 </g>
                                 <g fill="#fff" font-family="JetBrains Mono" font-size="14" text-anchor="middle" font-weight="600">
-                                    <text x="180" y="52">site</text>
-                                    <text x="180" y="106">class</text>
-                                    <text x="180" y="160">differential</text>
-                                    <text x="180" y="214">crash</text>
-                                    <text x="180" y="268">reach</text>
+                                    <text x="230" y="56">site</text>
+                                    <text x="230" y="110">class</text>
+                                    <text x="230" y="164">differential</text>
+                                    <text x="230" y="218">crash</text>
+                                    <text x="230" y="272">reach</text>
+                                </g>
+                                <!-- side arrows -->
+                                <g stroke="#94a3b8" stroke-width="3.5" fill="none" stroke-linecap="round">
+                                    <line x1="34" y1="52" x2="34" y2="268"/>
+                                    <line x1="426" y1="268" x2="426" y2="52"/>
+                                </g>
+                                <g fill="#94a3b8">
+                                    <polygon points="22,264 46,264 34,286"/>
+                                    <polygon points="414,56 438,56 426,34"/>
+                                </g>
+                                <g fill="#cbd5e1" font-family="Inter" font-size="14" font-weight="600" text-anchor="middle">
+                                    <text x="34" y="308">more reach</text>
+                                    <text x="426" y="24">harder</text>
                                 </g>
                             </svg>
-                            <div class="ladder-axis"><span>&darr; more runs reach here</span><span>harder &uarr;</span></div>
                         </div>
                         <ol class="ladder-list">
                             <li><span class="ln">reach</span> the input drives execution into the buggy region of code</li>
