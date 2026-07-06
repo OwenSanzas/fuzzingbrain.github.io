@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
     <style>
     /* ---- benchmark page scoped styles ---- */
-    .bench-hero{padding:72px 0 40px;text-align:center}
+    .bench-hero{padding:72px 0 24px;text-align:center}
     .bench-kicker{font-family:var(--font-mono);font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;color:var(--indigo-400);margin-bottom:14px}
     .bench-hero h2{font-size:2.9rem;line-height:1.12;margin:0 auto 16px;letter-spacing:-.5px}
     .bench-hero .lede{max-width:60ch;margin:0 auto;color:var(--text-secondary);font-size:1.12rem;line-height:1.6}
@@ -60,7 +60,8 @@
     .bottomline p{margin:0;color:rgba(255,255,255,.92);line-height:1.6;max-width:66ch}
 
     /* system requirements spec sheet */
-    .reqs{padding-top:10px}
+    .reqs{padding-top:6px;padding-bottom:20px}
+    .reqs-title{font-size:1.05rem;margin:0 0 12px;color:var(--text-primary)}
     .specsheet{border:1px solid var(--border);border-radius:14px;background:var(--surface);overflow:hidden}
     .spec-row{display:grid;grid-template-columns:170px 1fr;gap:18px;padding:15px 22px;align-items:center}
     .spec-row+.spec-row{border-top:1px solid var(--border)}
@@ -144,6 +145,7 @@
         <!-- System requirements -->
         <section class="bench-section reqs" style="border-top:0">
             <div class="section-content">
+                <h3 class="reqs-title">Recommended setup</h3>
                 <div class="specsheet">
                     <div class="spec-row">
                         <div class="spec-k">Operating system</div>
@@ -168,7 +170,6 @@
                             <span class="chip">openai <span class="cv">&ge; 1.40</span></span>
                             <span class="chip">google-genai <span class="cv">&ge; 0.3</span></span>
                             <span class="chip">pyyaml <span class="cv">&ge; 6.0</span></span>
-                            <span class="chip">rich <span class="cv">&ge; 13.0</span></span>
                         </div>
                     </div>
                 </div>
