@@ -202,6 +202,57 @@
         </div>
 
         <div class="tab-panel active" data-panel="intro">
+        <!-- System requirements -->
+        <section class="bench-section reqs">
+            <div class="section-content">
+                <h3 class="reqs-title">Recommended setup</h3>
+                <div class="specsheet">
+                    <div class="spec-row">
+                        <div class="spec-k">Operating system</div>
+                        <div class="spec-v">
+                            <span class="chip">Linux</span>
+                            <span class="chip">macOS</span>
+                            <span class="chip">Windows · WSL2</span>
+                        </div>
+                    </div>
+                    <div class="spec-row">
+                        <div class="spec-k">Requires</div>
+                        <div class="spec-v">
+                            <span class="chip">Docker <span class="cv">running</span></span>
+                            <span class="chip">Python <span class="cv">&ge; 3.10</span></span>
+                            <span class="chip opt">Node.js · optional</span>
+                        </div>
+                    </div>
+                    <div class="spec-row">
+                        <div class="spec-k">Model providers</div>
+                        <div class="spec-v">
+                            <span class="chip">Anthropic</span>
+                            <span class="chip">OpenAI</span>
+                            <span class="chip">Google</span>
+                            <span class="chip">DeepSeek</span>
+                            <span class="chip opt">+ more</span>
+                        </div>
+                    </div>
+                    <div class="spec-row">
+                        <div class="spec-k">Agents</div>
+                        <div class="spec-v">
+                            <span class="chip">Codex</span>
+                            <span class="chip">Claude Code</span>
+                        </div>
+                    </div>
+                    <div class="spec-row">
+                        <div class="spec-k">Python packages</div>
+                        <div class="spec-v">
+                            <span class="chip">anthropic <span class="cv">&ge; 0.40</span></span>
+                            <span class="chip">openai <span class="cv">&ge; 1.40</span></span>
+                            <span class="chip">google-genai <span class="cv">&ge; 0.3</span></span>
+                            <span class="chip">pyyaml <span class="cv">&ge; 6.0</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="bench-section">
             <div class="section-content">
                 <p class="sub" style="max-width:74ch">Most reports of models finding bugs count a crash. A crash is not a solve. FuzzingBrain Bench is built so the program itself decides whether a model found the exact documented bug or merely tripped some other fault. Three things make that work.</p>
@@ -264,56 +315,6 @@
             </div>
         </section>
 
-        <!-- System requirements -->
-        <section class="bench-section reqs">
-            <div class="section-content">
-                <h3 class="reqs-title">Recommended setup</h3>
-                <div class="specsheet">
-                    <div class="spec-row">
-                        <div class="spec-k">Operating system</div>
-                        <div class="spec-v">
-                            <span class="chip">Linux</span>
-                            <span class="chip">macOS</span>
-                            <span class="chip">Windows · WSL2</span>
-                        </div>
-                    </div>
-                    <div class="spec-row">
-                        <div class="spec-k">Requires</div>
-                        <div class="spec-v">
-                            <span class="chip">Docker <span class="cv">running</span></span>
-                            <span class="chip">Python <span class="cv">&ge; 3.10</span></span>
-                            <span class="chip opt">Node.js · optional</span>
-                        </div>
-                    </div>
-                    <div class="spec-row">
-                        <div class="spec-k">Model providers</div>
-                        <div class="spec-v">
-                            <span class="chip">Anthropic</span>
-                            <span class="chip">OpenAI</span>
-                            <span class="chip">Google</span>
-                            <span class="chip">DeepSeek</span>
-                            <span class="chip opt">+ more</span>
-                        </div>
-                    </div>
-                    <div class="spec-row">
-                        <div class="spec-k">Agents</div>
-                        <div class="spec-v">
-                            <span class="chip">Codex</span>
-                            <span class="chip">Claude Code</span>
-                        </div>
-                    </div>
-                    <div class="spec-row">
-                        <div class="spec-k">Python packages</div>
-                        <div class="spec-v">
-                            <span class="chip">anthropic <span class="cv">&ge; 0.40</span></span>
-                            <span class="chip">openai <span class="cv">&ge; 1.40</span></span>
-                            <span class="chip">google-genai <span class="cv">&ge; 0.3</span></span>
-                            <span class="chip">pyyaml <span class="cv">&ge; 6.0</span></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
         </div>
 
         <div class="tab-panel" data-panel="quickstart">
