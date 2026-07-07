@@ -712,8 +712,8 @@ READ of size 4 at <span class="dim">0x60200000eff4</span> thread T0
 cd FuzzingBrain-Bench && pip install -e .</code></pre>
                 </div>
 
-                <h4 class="qs-step">2. Add your model key and run a bug</h4>
-                <p class="qs-hint">Pick your provider. The key goes in <code>./.env</code>, then swap <code>--model</code> for any model from the same provider.</p>
+                <h4 class="qs-step">2. Run a bug through the model API</h4>
+                <p class="qs-hint">The direct arm. Pick your provider, the key goes in <code>./.env</code>, then swap <code>--model</code> for any model from the same provider.</p>
 
                 <div class="provider-name"><span class="pdot" style="background:#d97757"></span>Anthropic</div>
                 <div class="runbox">
@@ -743,8 +743,34 @@ fb-bench run json-java-02 --model deepseek-v4-flash
 # swap: deepseek-v4-pro</code></pre>
                 </div>
 
-                <h4 class="qs-step">3. Sweep the whole corpus</h4>
-                <p class="qs-hint">Run one model across all 68 bugs. Each cell lands under <code>runs/&lt;bug&gt;/&lt;model&gt;/</code>.</p>
+                <h4 class="qs-step">3. Or run a real coding agent</h4>
+                <p class="qs-hint">The agent arms drive a full coding-agent CLI through the same bench MCP server, so the model plans, runs its own tools, and iterates. These are the runs behind the agent leaderboard.</p>
+
+                <div class="provider-name"><span class="pdot" style="background:#10a37f"></span>Codex &nbsp;&middot;&nbsp; OpenAI, pinned to gpt-5.5</div>
+                <div class="runbox">
+<pre><code class="language-bash"># one-time: install the codex CLI and log in with an API key (not a ChatGPT login)
+npm install -g @openai/codex
+printenv OPENAI_API_KEY | codex login --with-api-key
+
+# run one bug, or sweep the whole corpus (resumable)
+python -m fbbench.sweep.codex one json-java-02
+python -m fbbench.sweep.codex sweep --bugs all</code></pre>
+                </div>
+
+                <div class="provider-name"><span class="pdot" style="background:#d97757"></span>Claude Code &nbsp;&middot;&nbsp; Anthropic</div>
+                <div class="runbox">
+<pre><code class="language-bash"># one-time: install the claude CLI
+npm install -g @anthropic-ai/claude-code
+
+# subscription login (default), uses your claude.ai plan
+python -m fbbench.sweep.claudecode one json-java-02 --model sonnet
+
+# or an API key from ./.env (pay as you go, no session limit)
+python -m fbbench.sweep.claudecode sweep --bugs all --model sonnet --auth api</code></pre>
+                </div>
+
+                <h4 class="qs-step">4. Sweep the whole corpus</h4>
+                <p class="qs-hint">The model-API arm across all 68 bugs. Each cell lands under <code>runs/&lt;bug&gt;/&lt;model&gt;/</code>. The agent arms above have their own resumable <code>sweep</code>.</p>
                 <div class="runbox">
 <pre><code class="language-bash">python -m fbbench.sweep.orchestrator --models claude-haiku-4-5 --bugs all --exp run1</code></pre>
                 </div>
