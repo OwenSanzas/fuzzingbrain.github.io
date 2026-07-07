@@ -269,6 +269,10 @@
     .diff-formula .fx{font-family:var(--font-mono);font-size:.9rem;color:var(--indigo-400);white-space:nowrap}
     .diff-formula .fx b{color:var(--text-primary)}
     .diff-formula .fn{color:var(--text-muted);font-size:.82rem;margin:12px 0 0}
+    .diff-tl{margin-top:22px;padding-top:16px;border-top:1px solid var(--border);text-align:center;color:var(--text-secondary);font-size:.95rem;line-height:1.6}
+    .diff-tl b{color:var(--text-primary)}
+    .diff-tl .fx{font-family:var(--font-mono);color:var(--indigo-400);white-space:nowrap}
+    .diff-tl .fx b{color:var(--indigo-400)}
     .io-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:14px}
     @media(min-width:720px){.io-grid{grid-template-columns:1fr 1fr}}
     .io-card{border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:6px 20px 14px}
@@ -1008,6 +1012,7 @@ python -m fbbench.sweep.claudecode sweep --bugs all --model sonnet --auth api</c
                         <li><span class="dl" style="background:#ef4444"></span><span class="dn">D5 &middot; unsolved</span><span class="dd">no run has solved it yet</span><span class="dc">17 bugs</span></li>
                     </ul>
                 </div>
+                <p class="diff-tl">In one line: a bug's difficulty is <span class="fx"><b>D</b> = 5 &minus; &lceil;S / 2&rceil;</span>, where <b>S</b> is how many of the 8 model runs fully solved it &mdash; so <b>D1</b> is a bug nearly everyone cracks and <b>D5</b> is one no run has solved yet.</p>
             </div>
         </section>
 
