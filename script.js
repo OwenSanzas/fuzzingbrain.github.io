@@ -191,6 +191,55 @@
         });
     }
 
+    // --- Hero terminal: sequential line reveal with cursor ---
+    function initTerminal() {
+        const log = document.getElementById('terminal-log');
+        if (!log) return;
+
+        const lines = Array.from(log.querySelectorAll('.t-line'));
+        if (!lines.length) return;
+
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduced) return; // leave full static log visible
+
+        const cursor = document.createElement('span');
+        cursor.className = 't-cursor';
+        cursor.textContent = ' ';
+
+        // Hide all lines, then reveal one at a time.
+        lines.forEach(line => { line.style.display = 'none'; });
+
+        let i = 0;
+        function revealNext() {
+            if (i > 0) {
+                const prev = lines[i - 1];
+                if (prev.contains(cursor)) prev.removeChild(cursor);
+            }
+            if (i >= lines.length) {
+                lines[lines.length - 1].appendChild(cursor);
+                return;
+            }
+            const line = lines[i];
+            line.style.display = 'block';
+            line.appendChild(cursor);
+            i++;
+            // Slightly longer pause after the first ($) command line.
+            const delay = i === 1 ? 700 : 480 + (i % 3) * 120;
+            setTimeout(revealNext, delay);
+        }
+
+        // Start when the terminal scrolls into view.
+        const obs = new IntersectionObserver((entries, o) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(revealNext, 400);
+                    o.disconnect();
+                }
+            });
+        }, { threshold: 0.3 });
+        obs.observe(log);
+    }
+
     // --- Page load fade-in ---
     function initPageTransition() {
         document.body.style.opacity = '0';
@@ -205,6 +254,7 @@
         initScrollAnimations();
         initCounterAnimations();
         initMobileMenu();
+        initTerminal();
         setTimeout(initParticles, 1000);
     });
 
