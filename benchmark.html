@@ -316,6 +316,15 @@
     .dh-cell{display:flex;align-items:center;justify-content:center;height:38px;border-radius:7px;font-family:var(--font-mono);font-size:.9rem;font-weight:600;color:#eef4fb}
     .dh-cell.dhz{background:rgba(100,116,139,.08);color:var(--text-muted);font-weight:400}
     .dh-cap{font-size:.82rem;color:var(--text-muted);margin-top:14px;line-height:1.55}
+    .sr-wrap{margin-top:14px;display:grid;gap:9px}
+    .sr-row{display:grid;grid-template-columns:190px 1fr 42px 58px;align-items:center;gap:12px}
+    @media(max-width:600px){.sr-row{grid-template-columns:130px 1fr 38px 46px;gap:8px}}
+    .sr-k{font-size:.85rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sr-track{height:16px;background:var(--surface);border-radius:5px;overflow:hidden}
+    .sr-fill{height:100%;border-radius:5px;min-width:2px}
+    .sr-v{font-family:var(--font-mono);font-size:.85rem;color:var(--text-primary);text-align:right}
+    .sr-n{font-family:var(--font-mono);font-size:.74rem;color:var(--text-muted);text-align:right}
+    .sr-row.sm .sr-k{color:var(--text-muted)}
     .io-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:14px}
     @media(min-width:720px){.io-grid{grid-template-columns:1fr 1fr}}
     .io-card{border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:6px 20px 14px}
@@ -1131,6 +1140,36 @@ python -m fbbench.sweep.claudecode sweep --bugs all --model sonnet --auth api</c
                     </div>
                     <p class="dh-cap">Each cell is bugs solved of that tier; deeper colour = a larger share cleared. The warm D4 band lights up only for the strongest runs, while the weakest fade out by D3 &mdash; and the D5 column stays dark for everyone.</p>
                 </div>
+            </div>
+        </section>
+
+        <!-- Solve rate by category and language -->
+        <section class="bench-section">
+            <div class="section-content">
+                <h3 class="hd">What's easy, what's hard</h3>
+                <p class="sub">Solve rate pooled over the eight model runs, split by fault category and by language. One pattern runs through it: a bug that fires on a single malformed input is easy, while a bug that needs the model to construct a condition &mdash; free-then-use, exhaust memory, leak &mdash; is hard.</p>
+                <h4 class="mini-h">By category</h4>
+                <div class="sr-wrap">
+                    <div class="sr-row"><div class="sr-k">uncaught-exception</div><div class="sr-track"><div class="sr-fill" style="width:67%;background:#10b981"></div></div><div class="sr-v">67%</div><div class="sr-n">8 bugs</div></div>
+                    <div class="sr-row sm"><div class="sr-k">out-of-bounds-write</div><div class="sr-track"><div class="sr-fill" style="width:59%;background:#10b981"></div></div><div class="sr-v">59%</div><div class="sr-n">4 bugs</div></div>
+                    <div class="sr-row sm"><div class="sr-k">undefined-behavior</div><div class="sr-track"><div class="sr-fill" style="width:56%;background:#10b981"></div></div><div class="sr-v">56%</div><div class="sr-n">4 bugs</div></div>
+                    <div class="sr-row"><div class="sr-k">null-pointer-dereference</div><div class="sr-track"><div class="sr-fill" style="width:55%;background:#10b981"></div></div><div class="sr-v">55%</div><div class="sr-n">6 bugs</div></div>
+                    <div class="sr-row"><div class="sr-k">out-of-bounds-read</div><div class="sr-track"><div class="sr-fill" style="width:49%;background:#84cc16"></div></div><div class="sr-v">49%</div><div class="sr-n">22 bugs</div></div>
+                    <div class="sr-row"><div class="sr-k">reachable-assertion</div><div class="sr-track"><div class="sr-fill" style="width:45%;background:#84cc16"></div></div><div class="sr-v">45%</div><div class="sr-n">5 bugs</div></div>
+                    <div class="sr-row"><div class="sr-k">memory-exhaustion</div><div class="sr-track"><div class="sr-fill" style="width:34%;background:#f59e0b"></div></div><div class="sr-v">34%</div><div class="sr-n">9 bugs</div></div>
+                    <div class="sr-row sm"><div class="sr-k">stack-exhaustion</div><div class="sr-track"><div class="sr-fill" style="width:31%;background:#f59e0b"></div></div><div class="sr-v">31%</div><div class="sr-n">2 bugs</div></div>
+                    <div class="sr-row sm"><div class="sr-k">memory-leak</div><div class="sr-track"><div class="sr-fill" style="width:17%;background:#f97316"></div></div><div class="sr-v">17%</div><div class="sr-n">3 bugs</div></div>
+                    <div class="sr-row sm"><div class="sr-k">use-after-free</div><div class="sr-track"><div class="sr-fill" style="width:16%;background:#f97316"></div></div><div class="sr-v">16%</div><div class="sr-n">4 bugs</div></div>
+                    <div class="sr-row sm"><div class="sr-k">excessive-computation</div><div class="sr-track"><div class="sr-fill" style="width:2%;background:#ef4444"></div></div><div class="sr-v">0%</div><div class="sr-n">1 bug</div></div>
+                </div>
+                <p class="dh-cap">Categories shown faint have only 1&ndash;4 bugs &mdash; treat those rates as indicative, not precise. The large categories (out-of-bounds-read 22, memory-exhaustion 9, uncaught-exception 8, null-pointer-dereference 6) are the solid signal.</p>
+                <h4 class="mini-h" style="margin-top:26px">By language</h4>
+                <div class="sr-wrap">
+                    <div class="sr-row"><div class="sr-k">JVM</div><div class="sr-track"><div class="sr-fill" style="width:68%;background:#10b981"></div></div><div class="sr-v">68%</div><div class="sr-n">9 bugs</div></div>
+                    <div class="sr-row"><div class="sr-k">C++</div><div class="sr-track"><div class="sr-fill" style="width:49%;background:#84cc16"></div></div><div class="sr-v">49%</div><div class="sr-n">28 bugs</div></div>
+                    <div class="sr-row"><div class="sr-k">C</div><div class="sr-track"><div class="sr-fill" style="width:37%;background:#f59e0b"></div></div><div class="sr-v">37%</div><div class="sr-n">31 bugs</div></div>
+                </div>
+                <p class="dh-cap">JVM bugs are mostly uncaught exceptions a single bad field triggers; C is all low-level memory faults where the input must be built byte by byte.</p>
             </div>
         </section>
 
