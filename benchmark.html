@@ -306,6 +306,16 @@
     .diff-tl b{color:var(--text-primary)}
     .diff-tl .fx{font-family:var(--font-mono);color:var(--indigo-400);white-space:nowrap}
     .diff-tl .fx b{color:var(--indigo-400)}
+    .dh{overflow-x:auto;margin-top:18px}
+    .dh-grid{display:grid;grid-template-columns:180px repeat(5,minmax(52px,1fr));gap:6px;align-items:center;min-width:480px}
+    .dh-col{text-align:center}
+    .dh-col .dn{font-family:var(--font-mono);font-weight:700;font-size:.86rem}
+    .dh-col .dsz{display:block;font-size:.68rem;color:var(--text-muted);margin-top:2px}
+    .dh-rl{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .dh-rl .pdot{width:8px;height:8px;border-radius:2px;flex:0 0 auto}
+    .dh-cell{display:flex;align-items:center;justify-content:center;height:38px;border-radius:7px;font-family:var(--font-mono);font-size:.9rem;font-weight:600;color:#eef4fb}
+    .dh-cell.dhz{background:rgba(100,116,139,.08);color:var(--text-muted);font-weight:400}
+    .dh-cap{font-size:.82rem;color:var(--text-muted);margin-top:14px;line-height:1.55}
     .io-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:14px}
     @media(min-width:720px){.io-grid{grid-template-columns:1fr 1fr}}
     .io-card{border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:6px 20px 14px}
@@ -1046,6 +1056,81 @@ python -m fbbench.sweep.claudecode sweep --bugs all --model sonnet --auth api</c
                     </ul>
                 </div>
                 <p class="diff-tl">In one line: a bug's difficulty is <span class="fx"><b>D</b> = 5 &minus; &lceil;S / 2&rceil;</span>, where <b>S</b> is how many of the 8 model runs fully solved it &mdash; so <b>D1</b> is a bug nearly everyone cracks and <b>D5</b> is one no run has solved yet.</p>
+            </div>
+        </section>
+
+        <!-- Difficulty x model heatmap -->
+        <section class="bench-section">
+            <div class="section-content">
+                <h3 class="hd">How far each model climbs</h3>
+                <p class="sub">The same five difficulty tiers, now split by model: how many bugs each run solved at each level. Everyone clears the easy floor, nobody cracks the D5 tail, and the field fans out in the middle &mdash; that is where the score is really won.</p>
+                <div class="dh">
+                    <div class="dh-grid">
+                        <div></div>
+                        <div class="dh-col"><span class="dn" style="color:#10b981">D1</span><span class="dsz">15 bugs</span></div>
+                        <div class="dh-col"><span class="dn" style="color:#84cc16">D2</span><span class="dsz">13 bugs</span></div>
+                        <div class="dh-col"><span class="dn" style="color:#f59e0b">D3</span><span class="dsz">13 bugs</span></div>
+                        <div class="dh-col"><span class="dn" style="color:#f97316">D4</span><span class="dsz">10 bugs</span></div>
+                        <div class="dh-col"><span class="dn" style="color:#ef4444">D5</span><span class="dsz">17 bugs</span></div>
+
+                        <div class="dh-rl"><span class="pdot" style="background:#d97757"></span>Claude Code &middot; Opus</div>
+                        <div class="dh-cell" style="background:rgba(16,185,129,1)">15</div>
+                        <div class="dh-cell" style="background:rgba(132,204,22,.85)">11</div>
+                        <div class="dh-cell" style="background:rgba(245,158,11,.62)">8</div>
+                        <div class="dh-cell" style="background:rgba(249,115,22,.40)">4</div>
+                        <div class="dh-cell dhz">0</div>
+
+                        <div class="dh-rl"><span class="pdot" style="background:#10a37f"></span>Codex &middot; GPT-5.5</div>
+                        <div class="dh-cell" style="background:rgba(16,185,129,.93)">14</div>
+                        <div class="dh-cell" style="background:rgba(132,204,22,.69)">9</div>
+                        <div class="dh-cell" style="background:rgba(245,158,11,.69)">9</div>
+                        <div class="dh-cell" style="background:rgba(249,115,22,.40)">4</div>
+                        <div class="dh-cell dhz">0</div>
+
+                        <div class="dh-rl"><span class="pdot" style="background:#d97757"></span>Opus 4.8</div>
+                        <div class="dh-cell" style="background:rgba(16,185,129,1)">15</div>
+                        <div class="dh-cell" style="background:rgba(132,204,22,.77)">10</div>
+                        <div class="dh-cell" style="background:rgba(245,158,11,.69)">9</div>
+                        <div class="dh-cell" style="background:rgba(249,115,22,.20)">2</div>
+                        <div class="dh-cell dhz">0</div>
+
+                        <div class="dh-rl"><span class="pdot" style="background:#10a37f"></span>GPT-5.5</div>
+                        <div class="dh-cell" style="background:rgba(16,185,129,1)">15</div>
+                        <div class="dh-cell" style="background:rgba(132,204,22,.77)">10</div>
+                        <div class="dh-cell" style="background:rgba(245,158,11,.77)">10</div>
+                        <div class="dh-cell dhz">0</div>
+                        <div class="dh-cell dhz">0</div>
+
+                        <div class="dh-rl"><span class="pdot" style="background:#4d6bfe"></span>DeepSeek V4 Pro</div>
+                        <div class="dh-cell" style="background:rgba(16,185,129,1)">15</div>
+                        <div class="dh-cell" style="background:rgba(132,204,22,.85)">11</div>
+                        <div class="dh-cell" style="background:rgba(245,158,11,.54)">7</div>
+                        <div class="dh-cell" style="background:rgba(249,115,22,.18)">1</div>
+                        <div class="dh-cell dhz">0</div>
+
+                        <div class="dh-rl"><span class="pdot" style="background:#4d6bfe"></span>DeepSeek V4 Flash</div>
+                        <div class="dh-cell" style="background:rgba(16,185,129,1)">15</div>
+                        <div class="dh-cell" style="background:rgba(132,204,22,.69)">9</div>
+                        <div class="dh-cell" style="background:rgba(245,158,11,.18)">1</div>
+                        <div class="dh-cell dhz">0</div>
+                        <div class="dh-cell dhz">0</div>
+
+                        <div class="dh-rl"><span class="pdot" style="background:#d97757"></span>Haiku 4.5</div>
+                        <div class="dh-cell" style="background:rgba(16,185,129,.87)">13</div>
+                        <div class="dh-cell" style="background:rgba(132,204,22,.46)">6</div>
+                        <div class="dh-cell" style="background:rgba(245,158,11,.23)">3</div>
+                        <div class="dh-cell dhz">0</div>
+                        <div class="dh-cell dhz">0</div>
+
+                        <div class="dh-rl"><span class="pdot" style="background:#d97757"></span>Claude Code &middot; Haiku</div>
+                        <div class="dh-cell" style="background:rgba(16,185,129,1)">15</div>
+                        <div class="dh-cell" style="background:rgba(132,204,22,.46)">6</div>
+                        <div class="dh-cell dhz">0</div>
+                        <div class="dh-cell" style="background:rgba(249,115,22,.18)">1</div>
+                        <div class="dh-cell dhz">0</div>
+                    </div>
+                    <p class="dh-cap">Each cell is bugs solved of that tier; deeper colour = a larger share cleared. The warm D4 band lights up only for the strongest runs, while the weakest fade out by D3 &mdash; and the D5 column stays dark for everyone.</p>
+                </div>
             </div>
         </section>
 
