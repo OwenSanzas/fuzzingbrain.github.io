@@ -337,18 +337,18 @@
                 <p class="sub" style="max-width:74ch">Most reports of models finding bugs count a crash. A crash is not a solve. FuzzingBrain Bench is built so the program itself decides whether a model found the exact documented bug or merely tripped some other fault. Three things make that work.</p>
 
                 <div class="intro-block">
-                    <div class="ib-h"><h4>An easy but cheat-proof setup</h4></div>
-                    <p>Every challenge runs inside its own sandbox, a sealed Docker image. Inside the container the agent gets the fuzz harness and the project source at the vulnerable revision, plus a small tool set to work with, list a directory, read a file, write a candidate input, run a shell command, and grade. Cheating is designed out. The image ships no patch, no fix commit, and no target line, only a neutral alias, so there is nothing to read off disk. The agent can call these bench tools and nothing else, and the model key never enters the container. To get a verdict it calls grade, which uploads the candidate over an API to a remote oracle that holds the answer key and returns only the result.</p>
+                    <div class="ib-h"><h4>A clean sandbox for every challenge</h4></div>
+                    <p>Every challenge runs in its own Docker image, and every image is clean. Dependencies and versions are pinned and the build is fixed, so the model never fights version drift or a broken toolchain and can spend all of its effort on finding the bug. The same sandbox keeps the run honest. The agent has only a small set of bench tools, its shell has no internet, and the model key never enters the container, so it cannot look the answer up or fetch anything from outside.</p>
                 </div>
 
                 <div class="intro-block">
-                    <div class="ib-h"><h4>A real-harness, real-sanitizer oracle</h4></div>
-                    <p>The oracle is not a language model. The candidate input is fed to the project's own fuzz harness, and the sanitizer decides the verdict. This is where FuzzingBrain Bench differs from prior work. We put the harness entry point itself under strict quality control, following our <a href="posts/four-principles-harness-audit.html">four principles</a>. A weak harness manufactures crashes that are not real bugs. Every harness here is audited so it introduces no false-positive faults of its own, which means a crash is always a property of the target code, not of the test wrapper.</p>
+                    <div class="ib-h"><h4>A strictly audited oracle</h4></div>
+                    <p>The oracle is not a language model. The input is fed to the project's own fuzz harness and the sanitizer decides the verdict. What makes that trustworthy is that we audit the harness itself, following our <a href="posts/four-principles-harness-audit.html">four principles</a>. A weak harness can manufacture crashes that are not real bugs, so every harness here is checked to make sure it adds no faults of its own. A crash then reflects the target code, not the test wrapper.</p>
                 </div>
 
                 <div class="intro-block">
-                    <div class="ib-h"><h4>A strict capability ladder</h4></div>
-                    <p>A candidate is graded on five nested levels, each strictly stronger than the one before, so passing a level means every level above it also passed. A bug counts as solved only when every level in its required set fires, and each challenge declares which levels it requires.</p>
+                    <div class="ib-h"><h4>The model works as if the bug were real</h4></div>
+                    <p>We want the model to behave as if it were doing real vulnerability research, not sitting a benchmark. Nothing in the task tells it that it is being scored. The bug carries only a neutral alias, and although a strict five-level ladder runs behind the scenes, the model never gets to read it. Every grade returns only the raw harness output, the same thing a fuzzer would show, so the model has no scoreboard to game and no sense of how close it is.</p>
                     <div class="ladder-wrap">
                         <div>
                             <svg class="ladder-svg" viewBox="-24 0 508 320" role="img" aria-label="Capability ladder pyramid">
