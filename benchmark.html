@@ -210,6 +210,11 @@
     .tag-soon{font-family:var(--font-mono);font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:#f59e0b;border:1px solid #f59e0b;border-radius:6px;padding:2px 6px;font-weight:500}
     .mode-card p{margin:0;color:var(--text-secondary);font-size:.92rem;line-height:1.6}
     .mode-card code{font-family:var(--font-mono);font-size:.85em}
+    .qs-step{font-size:1.05rem;color:var(--text-primary);margin:30px 0 8px;font-weight:600}
+    .qs-hint{color:var(--text-secondary);font-size:.92rem;margin:0 0 12px;line-height:1.55}
+    .qs-hint code{font-family:var(--font-mono);font-size:.86em}
+    .provider-name{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.8rem;letter-spacing:.04em;color:var(--text-secondary);margin:18px 0 6px}
+    .provider-name .pdot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
     .io-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:14px}
     @media(min-width:720px){.io-grid{grid-template-columns:1fr 1fr}}
     .io-card{border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:6px 20px 14px}
@@ -693,16 +698,48 @@ READ of size 4 at <span class="dim">0x60200000eff4</span> thread T0
             <div class="section-content">
                 <h3 class="hd">Run it in five minutes</h3>
                 <p class="sub">Only Docker and a model key are needed. No build, no answer key, nothing to download but the sealed image.</p>
+
+                <h4 class="qs-step">1. Install</h4>
                 <div class="runbox">
-<pre><code class="language-bash"># install
-git clone https://github.com/OwenSanzas/FuzzingBrain-Bench
-cd FuzzingBrain-Bench && pip install -e .
+<pre><code class="language-bash">git clone https://github.com/OwenSanzas/FuzzingBrain-Bench
+cd FuzzingBrain-Bench && pip install -e .</code></pre>
+                </div>
 
-# put your key in ./.env, then run one challenge
-fb-bench run avro-03 --model claude-haiku-4-5
+                <h4 class="qs-step">2. Add your model key and run a bug</h4>
+                <p class="qs-hint">Pick your provider. The key goes in <code>./.env</code>, then swap <code>--model</code> for any model from the same provider.</p>
 
-# or sweep the whole corpus with one model
-python -m fbbench.sweep.orchestrator --models gpt-5.5 --bugs all --exp run1</code></pre>
+                <div class="provider-name"><span class="pdot" style="background:#d97757"></span>Anthropic</div>
+                <div class="runbox">
+<pre><code class="language-bash">echo "ANTHROPIC_API_KEY=sk-ant-..." >> .env
+fb-bench run avro-03 --model claude-opus-4-8
+# swap: claude-sonnet-4-6, claude-haiku-4-5</code></pre>
+                </div>
+
+                <div class="provider-name"><span class="pdot" style="background:#10a37f"></span>OpenAI</div>
+                <div class="runbox">
+<pre><code class="language-bash">echo "OPENAI_API_KEY=sk-..." >> .env
+fb-bench run avro-03 --model gpt-5.5
+# swap: gpt-5.4, gpt-5.4-mini, gpt-5</code></pre>
+                </div>
+
+                <div class="provider-name"><span class="pdot" style="background:#4285f4"></span>Google</div>
+                <div class="runbox">
+<pre><code class="language-bash">echo "GEMINI_API_KEY=..." >> .env
+fb-bench run avro-03 --model gemini-3.1-pro-preview
+# swap: gemini-3.5-flash, gemini-2.5-pro</code></pre>
+                </div>
+
+                <div class="provider-name"><span class="pdot" style="background:#4d6bfe"></span>DeepSeek</div>
+                <div class="runbox">
+<pre><code class="language-bash">echo "DEEPSEEK_API_KEY=sk-..." >> .env
+fb-bench run avro-03 --model deepseek-v4-pro
+# swap: deepseek-v4-flash</code></pre>
+                </div>
+
+                <h4 class="qs-step">3. Sweep the whole corpus</h4>
+                <p class="qs-hint">Run one model across all 68 bugs. Each cell lands under <code>runs/&lt;bug&gt;/&lt;model&gt;/</code>.</p>
+                <div class="runbox">
+<pre><code class="language-bash">python -m fbbench.sweep.orchestrator --models gpt-5.5 --bugs all --exp run1</code></pre>
                 </div>
             </div>
         </section>
