@@ -261,6 +261,14 @@
     .diff-list .dn{font-weight:700;color:var(--text-primary);white-space:nowrap;min-width:96px}
     .diff-list .dd{color:var(--text-secondary);font-size:.9rem}
     .diff-list .dc{color:var(--text-muted);font-family:var(--font-mono);font-size:.82rem;margin-left:auto;white-space:nowrap}
+    .diff-formula{margin-top:24px;padding:18px 20px;background:var(--surface);border:1px solid var(--border);border-radius:10px}
+    .diff-formula .fh{font-weight:700;color:var(--text-primary);font-size:.9rem;margin:0 0 12px}
+    .diff-formula ol{margin:0;padding:0;list-style:none;display:grid;gap:11px}
+    .diff-formula li{display:grid;grid-template-columns:210px 1fr;gap:14px;align-items:baseline;font-size:.88rem;color:var(--text-secondary)}
+    @media(max-width:560px){.diff-formula li{grid-template-columns:1fr;gap:3px}}
+    .diff-formula .fx{font-family:var(--font-mono);font-size:.9rem;color:var(--indigo-400);white-space:nowrap}
+    .diff-formula .fx b{color:var(--text-primary)}
+    .diff-formula .fn{color:var(--text-muted);font-size:.82rem;margin:12px 0 0}
     .io-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:14px}
     @media(min-width:720px){.io-grid{grid-template-columns:1fr 1fr}}
     .io-card{border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:6px 20px 14px}
@@ -987,6 +995,15 @@ python -m fbbench.sweep.claudecode sweep --bugs all --model sonnet --auth api</c
                         <li><span class="dl" style="background:#f97316"></span><span class="dn">D4 &middot; very hard</span><span class="dd">1&ndash;2 runs solved it</span><span class="dc">10 bugs</span></li>
                         <li><span class="dl" style="background:#ef4444"></span><span class="dn">D5 &middot; unsolved</span><span class="dd">no run has solved it yet</span><span class="dc">17 bugs</span></li>
                     </ul>
+                </div>
+                <div class="diff-formula">
+                    <p class="fh">How each bug's difficulty is scored</p>
+                    <ol>
+                        <li><span class="fx"><b>solved</b>(bug, run) = 1</span><span>the run fires <em>every</em> applicable rung of the ladder (reach &rarr; crash &rarr; differential &rarr; class &rarr; site) &mdash; a full solve; otherwise 0.</span></li>
+                        <li><span class="fx"><b>S</b> = &Sigma; solved(bug, run)</span><span>how many of the <b>N&nbsp;=&nbsp;8</b> model runs solved the bug (0&nbsp;&le;&nbsp;S&nbsp;&le;&nbsp;8).</span></li>
+                        <li><span class="fx"><b>D</b> = 5 &minus; &lceil;S / 2&rceil;</span><span>the difficulty level, from <b>D1</b> (easiest, 7&ndash;8 solved) to <b>D5</b> (hardest, 0 solved).</span></li>
+                    </ol>
+                    <p class="fn">Dynamic: recomputed whenever the set of model runs changes, so difficulty drops as models improve. Today N&nbsp;=&nbsp;8 runs (Opus, GPT-5.5, Haiku, DeepSeek plus the Codex and Claude Code agents), each a single full-scan pass over all 68 bugs.</p>
                 </div>
             </div>
         </section>
