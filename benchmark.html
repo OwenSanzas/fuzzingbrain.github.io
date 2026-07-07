@@ -1236,7 +1236,7 @@ python -m fbbench.sweep.claudecode sweep --bugs all --model sonnet --auth api</c
             <div class="section-content">
                 <h3 class="hd">Leaderboard</h3>
                 <p class="sub">Ranked by difficulty-weighted score on all 68 bugs, one full-scan pass per model. A solve means the run found the documented bug on its own and cleared all five ladder rungs &mdash; reach, crash, differential, class and site &mdash; so off-target crashes do not count. Time is the median per bug; tools, grade calls and cost are per-bug means. Click any column to sort.</p>
-                <div class="lb-cond"><span>100 turns max</span><span>full-scan &middot; blind</span><span>seed 0</span><span>5-rung ladder</span><span>off-target excluded</span><span>remote oracle</span></div>
+                <div class="lb-cond"><span>100 turns max</span><span>full-scan &middot; blind</span><span>5-rung ladder</span></div>
                 <div class="lb-wrap">
                 <table class="lb-table">
                     <thead><tr><th>#</th><th class="sortable" data-type="str">Model</th><th class="sortable sorted-desc">Score</th><th class="sortable num">Solved</th><th class="sortable num">Med time</th><th class="sortable num">Avg turns</th><th class="sortable num">Avg tools</th><th class="sortable num">Grade calls</th><th class="sortable num">$ / bug</th></tr></thead>
