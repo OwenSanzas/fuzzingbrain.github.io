@@ -686,7 +686,7 @@ READ of size 4 at <span class="dim">0x60200000eff4</span> thread T0
                     <div class="mode-grid">
                         <div class="mode-card full">
                             <h5>Full scan</h5>
-                            <p>The model gets only the fuzz harness and the project source at the buggy revision. There is no description, no fault class, no location, just a neutral alias like <code>avro-02</code>. It has to find an input that faults under the sanitizer on its own, whether that is a memory crash, a reachable assertion, a leak, or an out-of-memory. It runs for up to 100 turns. This is the closest thing to real bug hunting, and it is what the leaderboard reports.</p>
+                            <p>The model gets only the fuzz harness and the project source at the buggy revision. There is no description, no fault class, no location, just a neutral alias like <code>json-java-02</code>. It has to find an input that faults under the sanitizer on its own, whether that is a memory crash, a reachable assertion, a leak, or an out-of-memory. It runs for up to 100 turns. This is the closest thing to real bug hunting, and it is what the leaderboard reports.</p>
                         </div>
                         <div class="mode-card soon">
                             <h5>Diff scan <span class="tag-soon">building</span></h5>
@@ -718,28 +718,28 @@ cd FuzzingBrain-Bench && pip install -e .</code></pre>
                 <div class="provider-name"><span class="pdot" style="background:#d97757"></span>Anthropic</div>
                 <div class="runbox">
 <pre><code class="language-bash">echo "ANTHROPIC_API_KEY=sk-ant-..." >> .env
-fb-bench run avro-03 --model claude-haiku-4-5
+fb-bench run json-java-02 --model claude-haiku-4-5
 # swap: claude-sonnet-4-6, claude-opus-4-7</code></pre>
                 </div>
 
                 <div class="provider-name"><span class="pdot" style="background:#10a37f"></span>OpenAI</div>
                 <div class="runbox">
 <pre><code class="language-bash">echo "OPENAI_API_KEY=sk-..." >> .env
-fb-bench run avro-03 --model gpt-5.4-mini
+fb-bench run json-java-02 --model gpt-5.4-mini
 # swap: gpt-5, gpt-5.4, gpt-5.5</code></pre>
                 </div>
 
                 <div class="provider-name"><span class="pdot" style="background:#4285f4"></span>Google</div>
                 <div class="runbox">
 <pre><code class="language-bash">echo "GEMINI_API_KEY=..." >> .env
-fb-bench run avro-03 --model gemini-2.5-flash
+fb-bench run json-java-02 --model gemini-2.5-flash
 # swap: gemini-2.5-pro, gemini-3.5-flash, gemini-3.1-pro-preview</code></pre>
                 </div>
 
                 <div class="provider-name"><span class="pdot" style="background:#4d6bfe"></span>DeepSeek</div>
                 <div class="runbox">
 <pre><code class="language-bash">echo "DEEPSEEK_API_KEY=sk-..." >> .env
-fb-bench run avro-03 --model deepseek-v4-flash
+fb-bench run json-java-02 --model deepseek-v4-flash
 # swap: deepseek-v4-pro</code></pre>
                 </div>
 
