@@ -332,6 +332,8 @@
     .sr-v{font-family:var(--font-mono);font-size:.85rem;color:var(--text-primary);text-align:right}
     .sr-n{font-family:var(--font-mono);font-size:.74rem;color:var(--text-muted);text-align:right}
     .sr-row.sm .sr-k{color:var(--text-muted)}
+    .cd{display:inline-block;min-width:15px;height:15px;line-height:15px;text-align:center;font-size:.62rem;font-weight:700;color:#fff;border-radius:4px;margin:0 7px 0 3px;font-family:var(--font-mono);vertical-align:middle}
+    .cd1{background:#10b981}.cd2{background:#84cc16;color:#0c1400}.cd3{background:#f59e0b;color:#1c1400}.cd4{background:#f97316}.cd5{background:#ef4444}
     .io-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:14px}
     @media(min-width:720px){.io-grid{grid-template-columns:1fr 1fr}}
     .io-card{border:1px solid var(--border);border-radius:14px;background:var(--surface);padding:6px 20px 14px}
@@ -948,54 +950,55 @@ python -m fbbench.sweep.claudecode sweep --bugs all --model sonnet --auth api</c
                     <table class="chall-table">
                         <thead><tr><th>Project</th><th>Lang</th><th>Challenges</th></tr></thead>
                         <tbody>
-                            <tr><td class="pj">avro</td><td class="lg">C, Java</td><td class="ch"><code>avro-01</code> <code>avro-02</code> <code>avro-03</code></td></tr>
-                            <tr><td class="pj">binutils</td><td class="lg">C</td><td class="ch"><code>binutils-01</code></td></tr>
-                            <tr><td class="pj">cups</td><td class="lg">C</td><td class="ch"><code>cups-01</code></td></tr>
-                            <tr><td class="pj">dtc</td><td class="lg">C</td><td class="ch"><code>dtc-01</code></td></tr>
-                            <tr><td class="pj">flatbuffers</td><td class="lg">C++</td><td class="ch"><code>flatbuffers-01</code> <code>flatbuffers-02</code> <code>flatbuffers-03</code></td></tr>
-                            <tr><td class="pj">freerdp</td><td class="lg">C</td><td class="ch"><code>freerdp-01</code></td></tr>
-                            <tr><td class="pj">freetype</td><td class="lg">C</td><td class="ch"><code>freetype-01</code></td></tr>
-                            <tr><td class="pj">fwupd</td><td class="lg">C</td><td class="ch"><code>fwupd-01</code> <code>fwupd-02</code> <code>fwupd-03</code> <code>fwupd-04</code></td></tr>
-                            <tr><td class="pj">ghidra</td><td class="lg">C</td><td class="ch"><code>ghidra-01</code></td></tr>
-                            <tr><td class="pj">graal</td><td class="lg">Java</td><td class="ch"><code>graal-01</code></td></tr>
-                            <tr><td class="pj">graaljs</td><td class="lg">Java</td><td class="ch"><code>graaljs-01</code></td></tr>
-                            <tr><td class="pj">harfbuzz</td><td class="lg">C++</td><td class="ch"><code>harfbuzz-01</code></td></tr>
-                            <tr><td class="pj">hunspell</td><td class="lg">C++</td><td class="ch"><code>hunspell-01</code></td></tr>
-                            <tr><td class="pj">icu</td><td class="lg">C++</td><td class="ch"><code>icu-01</code> <code>icu-02</code></td></tr>
-                            <tr><td class="pj">imagemagick</td><td class="lg">C, C++</td><td class="ch"><code>imagemagick-01</code> <code>imagemagick-02</code> <code>imagemagick-03</code></td></tr>
-                            <tr><td class="pj">jq</td><td class="lg">C</td><td class="ch"><code>jq-01</code></td></tr>
-                            <tr><td class="pj">json-java</td><td class="lg">Java</td><td class="ch"><code>json-java-01</code> <code>json-java-02</code> <code>json-java-03</code></td></tr>
-                            <tr><td class="pj">libaom</td><td class="lg">C++</td><td class="ch"><code>libaom-01</code> <code>libaom-02</code> <code>libaom-03</code></td></tr>
-                            <tr><td class="pj">libavif</td><td class="lg">C++</td><td class="ch"><code>libavif-01</code></td></tr>
-                            <tr><td class="pj">libheif</td><td class="lg">C++</td><td class="ch"><code>libheif-01</code></td></tr>
+                            <tr><td class="pj">avro</td><td class="lg">C, Java</td><td class="ch"><code>avro-01</code><span class="cd cd2">2</span> <code>avro-02</code><span class="cd cd3">3</span> <code>avro-03</code><span class="cd cd3">3</span></td></tr>
+                            <tr><td class="pj">binutils</td><td class="lg">C</td><td class="ch"><code>binutils-01</code><span class="cd cd3">3</span></td></tr>
+                            <tr><td class="pj">cups</td><td class="lg">C</td><td class="ch"><code>cups-01</code><span class="cd cd1">1</span></td></tr>
+                            <tr><td class="pj">dtc</td><td class="lg">C</td><td class="ch"><code>dtc-01</code><span class="cd cd3">3</span></td></tr>
+                            <tr><td class="pj">flatbuffers</td><td class="lg">C++</td><td class="ch"><code>flatbuffers-01</code><span class="cd cd2">2</span> <code>flatbuffers-02</code><span class="cd cd5">5</span> <code>flatbuffers-03</code><span class="cd cd4">4</span></td></tr>
+                            <tr><td class="pj">freerdp</td><td class="lg">C</td><td class="ch"><code>freerdp-01</code><span class="cd cd3">3</span></td></tr>
+                            <tr><td class="pj">freetype</td><td class="lg">C</td><td class="ch"><code>freetype-01</code><span class="cd cd3">3</span></td></tr>
+                            <tr><td class="pj">fwupd</td><td class="lg">C</td><td class="ch"><code>fwupd-01</code><span class="cd cd5">5</span> <code>fwupd-02</code><span class="cd cd1">1</span> <code>fwupd-03</code><span class="cd cd4">4</span> <code>fwupd-04</code><span class="cd cd5">5</span></td></tr>
+                            <tr><td class="pj">ghidra</td><td class="lg">C</td><td class="ch"><code>ghidra-01</code><span class="cd cd3">3</span></td></tr>
+                            <tr><td class="pj">graal</td><td class="lg">Java</td><td class="ch"><code>graal-01</code><span class="cd cd5">5</span></td></tr>
+                            <tr><td class="pj">graaljs</td><td class="lg">Java</td><td class="ch"><code>graaljs-01</code><span class="cd cd5">5</span></td></tr>
+                            <tr><td class="pj">harfbuzz</td><td class="lg">C++</td><td class="ch"><code>harfbuzz-01</code><span class="cd cd1">1</span></td></tr>
+                            <tr><td class="pj">hunspell</td><td class="lg">C++</td><td class="ch"><code>hunspell-01</code><span class="cd cd3">3</span></td></tr>
+                            <tr><td class="pj">icu</td><td class="lg">C++</td><td class="ch"><code>icu-01</code><span class="cd cd5">5</span> <code>icu-02</code><span class="cd cd4">4</span></td></tr>
+                            <tr><td class="pj">imagemagick</td><td class="lg">C, C++</td><td class="ch"><code>imagemagick-01</code><span class="cd cd5">5</span> <code>imagemagick-02</code><span class="cd cd4">4</span> <code>imagemagick-03</code><span class="cd cd3">3</span></td></tr>
+                            <tr><td class="pj">jq</td><td class="lg">C</td><td class="ch"><code>jq-01</code><span class="cd cd5">5</span></td></tr>
+                            <tr><td class="pj">json-java</td><td class="lg">Java</td><td class="ch"><code>json-java-01</code><span class="cd cd2">2</span> <code>json-java-02</code><span class="cd cd1">1</span> <code>json-java-03</code><span class="cd cd1">1</span></td></tr>
+                            <tr><td class="pj">libaom</td><td class="lg">C++</td><td class="ch"><code>libaom-01</code><span class="cd cd2">2</span> <code>libaom-02</code><span class="cd cd4">4</span> <code>libaom-03</code><span class="cd cd2">2</span></td></tr>
+                            <tr><td class="pj">libavif</td><td class="lg">C++</td><td class="ch"><code>libavif-01</code><span class="cd cd1">1</span></td></tr>
+                            <tr><td class="pj">libheif</td><td class="lg">C++</td><td class="ch"><code>libheif-01</code><span class="cd cd5">5</span></td></tr>
                         </tbody>
                     </table>
                     <table class="chall-table">
                         <thead><tr><th>Project</th><th>Lang</th><th>Challenges</th></tr></thead>
                         <tbody>
-                            <tr><td class="pj">libpng</td><td class="lg">C</td><td class="ch"><code>libpng-01</code></td></tr>
-                            <tr><td class="pj">libvpx</td><td class="lg">C, C++</td><td class="ch"><code>libvpx-01</code> <code>libvpx-02</code> <code>libvpx-03</code> <code>libvpx-04</code></td></tr>
-                            <tr><td class="pj">libwebp</td><td class="lg">C, C++</td><td class="ch"><code>libwebp-01</code> <code>libwebp-02</code> <code>libwebp-03</code></td></tr>
-                            <tr><td class="pj">libwebsockets</td><td class="lg">C</td><td class="ch"><code>libwebsockets-01</code></td></tr>
-                            <tr><td class="pj">mongoose</td><td class="lg">C</td><td class="ch"><code>mongoose-01</code> <code>mongoose-02</code></td></tr>
-                            <tr><td class="pj">ndpi</td><td class="lg">C</td><td class="ch"><code>ndpi-01</code></td></tr>
-                            <tr><td class="pj">net-snmp</td><td class="lg">C</td><td class="ch"><code>net-snmp-01</code> <code>net-snmp-02</code></td></tr>
-                            <tr><td class="pj">opc-ua</td><td class="lg">C</td><td class="ch"><code>opc-ua-01</code></td></tr>
-                            <tr><td class="pj">opencv</td><td class="lg">C++</td><td class="ch"><code>opencv-01</code></td></tr>
-                            <tr><td class="pj">openh264</td><td class="lg">C++</td><td class="ch"><code>openh264-01</code></td></tr>
-                            <tr><td class="pj">openldap</td><td class="lg">C</td><td class="ch"><code>openldap-01</code> <code>openldap-02</code></td></tr>
-                            <tr><td class="pj">openscreen</td><td class="lg">C++</td><td class="ch"><code>openscreen-01</code> <code>openscreen-02</code></td></tr>
-                            <tr><td class="pj">openssl</td><td class="lg">C</td><td class="ch"><code>openssl-01</code></td></tr>
-                            <tr><td class="pj">ots</td><td class="lg">C++</td><td class="ch"><code>ots-01</code></td></tr>
-                            <tr><td class="pj">pdfbox</td><td class="lg">Java</td><td class="ch"><code>pdfbox-01</code> <code>pdfbox-02</code> <code>pdfbox-03</code></td></tr>
-                            <tr><td class="pj">simdutf</td><td class="lg">C++</td><td class="ch"><code>simdutf-01</code></td></tr>
-                            <tr><td class="pj">skia</td><td class="lg">C++</td><td class="ch"><code>skia-01</code></td></tr>
-                            <tr><td class="pj">spirv-tools</td><td class="lg">C++</td><td class="ch"><code>spirv-tools-01</code> <code>spirv-tools-02</code></td></tr>
-                            <tr><td class="pj">systemd</td><td class="lg">C</td><td class="ch"><code>systemd-01</code> <code>systemd-02</code></td></tr>
-                            <tr><td class="pj">upx</td><td class="lg">C++</td><td class="ch"><code>upx-01</code> <code>upx-02</code></td></tr>
+                            <tr><td class="pj">libpng</td><td class="lg">C</td><td class="ch"><code>libpng-01</code><span class="cd cd5">5</span></td></tr>
+                            <tr><td class="pj">libvpx</td><td class="lg">C, C++</td><td class="ch"><code>libvpx-01</code><span class="cd cd5">5</span> <code>libvpx-02</code><span class="cd cd2">2</span> <code>libvpx-03</code><span class="cd cd1">1</span> <code>libvpx-04</code><span class="cd cd1">1</span></td></tr>
+                            <tr><td class="pj">libwebp</td><td class="lg">C, C++</td><td class="ch"><code>libwebp-01</code><span class="cd cd4">4</span> <code>libwebp-02</code><span class="cd cd1">1</span> <code>libwebp-03</code><span class="cd cd2">2</span></td></tr>
+                            <tr><td class="pj">libwebsockets</td><td class="lg">C</td><td class="ch"><code>libwebsockets-01</code><span class="cd cd5">5</span></td></tr>
+                            <tr><td class="pj">mongoose</td><td class="lg">C</td><td class="ch"><code>mongoose-01</code><span class="cd cd4">4</span> <code>mongoose-02</code><span class="cd cd4">4</span></td></tr>
+                            <tr><td class="pj">ndpi</td><td class="lg">C</td><td class="ch"><code>ndpi-01</code><span class="cd cd2">2</span></td></tr>
+                            <tr><td class="pj">net-snmp</td><td class="lg">C</td><td class="ch"><code>net-snmp-01</code><span class="cd cd4">4</span> <code>net-snmp-02</code><span class="cd cd2">2</span></td></tr>
+                            <tr><td class="pj">opc-ua</td><td class="lg">C</td><td class="ch"><code>opc-ua-01</code><span class="cd cd3">3</span></td></tr>
+                            <tr><td class="pj">opencv</td><td class="lg">C++</td><td class="ch"><code>opencv-01</code><span class="cd cd1">1</span></td></tr>
+                            <tr><td class="pj">openh264</td><td class="lg">C++</td><td class="ch"><code>openh264-01</code><span class="cd cd2">2</span></td></tr>
+                            <tr><td class="pj">openldap</td><td class="lg">C</td><td class="ch"><code>openldap-01</code><span class="cd cd2">2</span> <code>openldap-02</code><span class="cd cd3">3</span></td></tr>
+                            <tr><td class="pj">openscreen</td><td class="lg">C++</td><td class="ch"><code>openscreen-01</code><span class="cd cd2">2</span> <code>openscreen-02</code><span class="cd cd1">1</span></td></tr>
+                            <tr><td class="pj">openssl</td><td class="lg">C</td><td class="ch"><code>openssl-01</code><span class="cd cd1">1</span></td></tr>
+                            <tr><td class="pj">ots</td><td class="lg">C++</td><td class="ch"><code>ots-01</code><span class="cd cd1">1</span></td></tr>
+                            <tr><td class="pj">pdfbox</td><td class="lg">Java</td><td class="ch"><code>pdfbox-01</code><span class="cd cd2">2</span> <code>pdfbox-02</code><span class="cd cd1">1</span> <code>pdfbox-03</code><span class="cd cd1">1</span></td></tr>
+                            <tr><td class="pj">simdutf</td><td class="lg">C++</td><td class="ch"><code>simdutf-01</code><span class="cd cd3">3</span></td></tr>
+                            <tr><td class="pj">skia</td><td class="lg">C++</td><td class="ch"><code>skia-01</code><span class="cd cd5">5</span></td></tr>
+                            <tr><td class="pj">spirv-tools</td><td class="lg">C++</td><td class="ch"><code>spirv-tools-01</code><span class="cd cd3">3</span> <code>spirv-tools-02</code><span class="cd cd5">5</span></td></tr>
+                            <tr><td class="pj">systemd</td><td class="lg">C</td><td class="ch"><code>systemd-01</code><span class="cd cd4">4</span> <code>systemd-02</code><span class="cd cd5">5</span></td></tr>
+                            <tr><td class="pj">upx</td><td class="lg">C++</td><td class="ch"><code>upx-01</code><span class="cd cd5">5</span> <code>upx-02</code><span class="cd cd5">5</span></td></tr>
                         </tbody>
                     </table>
                 </div>
+                <p class="dh-cap">The coloured badge on each challenge is its difficulty, greenest <span class="cd cd1">1</span> easiest through reddest <span class="cd cd5">5</span> hardest &mdash; the dynamic ranking (D&nbsp;=&nbsp;5&nbsp;&minus;&nbsp;&lceil;solves/2&rceil; over the eight runs) from the <a href="#difficulty" data-tabjump="stats" class="xlink">Difficulty section &rarr;</a>. The 17 <span class="cd cd5">5</span> bugs are the hard tail no run has cracked yet.</p>
             </div>
         </section>
 
