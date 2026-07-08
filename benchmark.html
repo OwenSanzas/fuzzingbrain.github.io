@@ -502,7 +502,7 @@
                         <text x="267" y="42" fill="#f59e0b" font-family="JetBrains Mono" font-size="11">02</text>
                         <path d="M360,36 l22,8 v20 c0,15 -10,25 -22,31 c-12,-6 -22,-16 -22,-31 v-20 z" fill="none" stroke="#f59e0b" stroke-width="2.5"/>
                         <polyline points="349,64 357,72 372,54" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                        <text x="360" y="112" fill="#fff" font-size="15" font-weight="700" text-anchor="middle">An audited oracle</text>
+                        <text x="360" y="112" fill="#fff" font-size="15" font-weight="700" text-anchor="middle">Audited oracle</text>
                         <text x="360" y="132" fill="#94a3b8" font-size="11.5" text-anchor="middle">harness noise filtered out</text>
                         <text x="360" y="148" fill="#94a3b8" font-size="11.5" text-anchor="middle">by a four-principles audit</text>
                         <!-- pillar 3: blind realistic sandbox -->
@@ -511,7 +511,7 @@
                         <ellipse cx="597" cy="60" rx="27" ry="16" fill="none" stroke="#10b981" stroke-width="2.5"/>
                         <circle cx="597" cy="60" r="6.5" fill="none" stroke="#10b981" stroke-width="2.5"/>
                         <line x1="575" y1="82" x2="619" y2="38" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
-                        <text x="597" y="112" fill="#fff" font-size="15" font-weight="700" text-anchor="middle">A blind, realistic sandbox</text>
+                        <text x="597" y="112" fill="#fff" font-size="15" font-weight="700" text-anchor="middle">Realistic sandbox</text>
                         <text x="597" y="132" fill="#94a3b8" font-size="11.5" text-anchor="middle">nothing tells the model</text>
                         <text x="597" y="148" fill="#94a3b8" font-size="11.5" text-anchor="middle">it is being benchmarked</text>
                         <!-- convergence -->
@@ -531,13 +531,13 @@
                 </div>
 
                 <div class="intro-block">
-                    <div class="ib-h"><h4>An audited oracle, free of harness noise</h4></div>
+                    <div class="ib-h"><h4>Audited oracle</h4></div>
                     <p>The verdict comes from the project&rsquo;s own fuzz harness and its sanitizer, not from a language model. A weak harness can manufacture crashes that are not real bugs, so every harness here is audited against our <a href="posts/four-principles-harness-audit.html">four principles</a> before its bug ships. A crash then reflects the target code, not the test wrapper.</p>
                 </div>
 
                 <div class="intro-block">
-                    <div class="ib-h"><h4>A sandbox that plays like real bug hunting</h4></div>
-                    <p>The sandbox is built to feel like real vulnerability research. Nothing in it tells the model it is being benchmarked. The bug carries a neutral alias, the shell has no internet, the model key never enters the container, and every grade returns only the raw harness output a fuzzer would show. There is no scoreboard to game and no sense of how close it is. Pinned dependencies and a fixed build keep the environment out of the way, so all of the model&rsquo;s effort goes into the bug.</p>
+                    <div class="ib-h"><h4>Realistic sandbox</h4></div>
+                    <p>The sandbox is built to feel like real vulnerability research. Nothing in it tells the model it is being benchmarked. The bug carries a neutral alias, the shell has no internet, the model key never enters the container, and every grade returns only the raw harness output a fuzzer would show. Dependencies are pinned and the build is fixed, so the model does not fight the environment.</p>
                     <svg class="arch-svg" style="max-width:720px" viewBox="0 0 720 400" role="img" aria-label="What is inside the sandbox">
                         <defs>
                             <marker id="ah-sb" markerWidth="9" markerHeight="9" refX="6.2" refY="3" orient="auto"><path d="M0,0 L6.2,3 L0,6 z" fill="#94a3b8"/></marker>
