@@ -530,6 +530,16 @@
                 <div class="intro-block">
                     <div class="ib-h"><h4>Multi-level grading</h4></div>
                     <p>Every candidate input is scored on a five-level ladder: reach, crash, differential, class, site. Each level is strictly stronger than the last &mdash; a crash of the wrong class or at the wrong location is a different bug, so an off-target crash is progress, not a solve.</p>
+                </div>
+
+                <div class="intro-block">
+                    <div class="ib-h"><h4>An audited oracle, free of harness noise</h4></div>
+                    <p>The verdict comes from the project&rsquo;s own fuzz harness and its sanitizer, not from a language model. A weak harness can manufacture crashes that are not real bugs, so every harness here is audited against our <a href="posts/four-principles-harness-audit.html">four principles</a> before its bug ships. A crash then reflects the target code, not the test wrapper.</p>
+                </div>
+
+                <div class="intro-block">
+                    <div class="ib-h"><h4>A sandbox that plays like real bug hunting</h4></div>
+                    <p>The sandbox is built to feel like real vulnerability research: nothing in it tells the model it is being benchmarked. The bug carries a neutral alias, the shell has no internet, the model key never enters the container, and every grade returns only the raw harness output a fuzzer would show &mdash; no scoreboard to game, no sense of how close it is. Pinned dependencies and a fixed build keep the environment out of the way, so all of the model&rsquo;s effort goes into the bug.</p>
                     <div class="ladder-wrap">
                         <div>
                             <svg class="ladder-svg" viewBox="-24 0 508 320" role="img" aria-label="Capability ladder pyramid">
@@ -571,16 +581,6 @@
                             <li><span class="ln">site</span> the input crashes at the documented file and line, at or near the top of the stack</li>
                         </ol>
                     </div>
-                </div>
-
-                <div class="intro-block">
-                    <div class="ib-h"><h4>An audited oracle, free of harness noise</h4></div>
-                    <p>The verdict comes from the project&rsquo;s own fuzz harness and its sanitizer, not from a language model. A weak harness can manufacture crashes that are not real bugs, so every harness here is audited against our <a href="posts/four-principles-harness-audit.html">four principles</a> before its bug ships. A crash then reflects the target code, not the test wrapper.</p>
-                </div>
-
-                <div class="intro-block">
-                    <div class="ib-h"><h4>A sandbox that plays like real bug hunting</h4></div>
-                    <p>The sandbox is built to feel like real vulnerability research: nothing in it tells the model it is being benchmarked. The bug carries a neutral alias, the shell has no internet, the model key never enters the container, and every grade returns only the raw harness output a fuzzer would show &mdash; no scoreboard to game, no sense of how close it is. Pinned dependencies and a fixed build keep the environment out of the way, so all of the model&rsquo;s effort goes into the bug.</p>
                 </div>
 
                 <hr class="intro-hr">
